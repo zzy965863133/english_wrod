@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>三年级全科打卡</title>
+    <title>小学全科学习助手</title>
     <style>
         :root {
             --primary-color: #4facfe;
@@ -17,180 +17,129 @@
             --error-color: #f44336;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            background: var(--bg-color); color: var(--text-color); height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* 通用头部 */
         header {
             background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            padding: 15px 20px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 10;
+            padding: 15px 20px; color: white; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 10;
         }
         .header-title { font-weight: bold; font-size: 1.1rem; }
         .back-btn { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 5px;}
 
-        /* 主内容区域 */
-        main {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            padding: 20px;
-        }
+        main { flex: 1; position: relative; overflow: hidden; padding: 20px; }
 
-        /* 页面切换逻辑 */
         .page {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            transform: scale(0.98);
-            overflow-y: auto; /* 允许页面内部滚动 */
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 20px;
+            display: flex; flex-direction: column; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease; transform: scale(0.98); overflow-y: auto;
         }
+        .page.active { opacity: 1; pointer-events: all; transform: scale(1); z-index: 5; }
 
-        .page.active {
-            opacity: 1;
-            pointer-events: all;
-            transform: scale(1);
-            z-index: 5;
-        }
-
-        /* --- 首页模块样式 --- */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            max-width: 500px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
+        /* 首页模块样式 */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 500px; margin: 0 auto; width: 100%; }
         .module-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 30px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: transform 0.1s;
-            border-left: 8px solid #ccc;
+            background: var(--card-bg); border-radius: 20px; padding: 30px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.1s; border-left: 8px solid #ccc;
         }
-
         .module-card:active { transform: scale(0.98); }
-
         .card-poetry { border-color: var(--poetry-color); }
         .card-english { border-color: var(--primary-color); }
         .card-math { border-color: var(--math-color); }
-
         .module-icon { font-size: 3rem; margin-right: 20px; }
         .module-info h2 { font-size: 1.3rem; margin-bottom: 5px; }
         .module-info p { color: #888; font-size: 0.9rem; }
 
-        /* --- 列表页样式 (古诗/数学列表) --- */
+        /* 列表样式 */
         .list-item {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-            cursor: pointer;
+            background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); cursor: pointer;
         }
         .list-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
         .list-desc { color: #666; font-size: 0.9rem; }
 
-        /* --- 古诗详情页 --- */
+        /* 古诗详情 */
         .poem-card {
-            background: white;
-            padding: 40px 30px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative;
+            background: white; padding: 40px 30px; border-radius: 20px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative;
             background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNmMGYwZjAiLz4KPC9zdmc+');
         }
         .poem-title { font-size: 1.8rem; font-weight: bold; color: #333; margin-bottom: 10px; font-family: "Kaiti", "楷体", serif; }
         .poem-author { color: #666; font-size: 1rem; margin-bottom: 30px; }
         .poem-content { font-size: 1.4rem; line-height: 2; color: #444; font-family: "Kaiti", "楷体", serif; white-space: pre-wrap; }
-        
-        .mask-btn {
-            margin-top: 30px;
-            background: var(--poetry-color);
-            color: white;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 30px;
-            font-size: 1rem;
-        }
+        .mask-btn { margin-top: 30px; background: var(--poetry-color); color: white; border: none; padding: 10px 30px; border-radius: 30px; font-size: 1rem; }
         .masked .poem-content { color: transparent; text-shadow: 0 0 10px rgba(0,0,0,0.2); }
 
-        /* --- 数学动画演示区 --- */
+        /* 数学动画区 */
         .math-stage {
-            background: white;
-            border-radius: 20px;
-            height: 300px;
-            margin-bottom: 20px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
-            overflow: hidden;
+            background: white; border-radius: 20px; height: 300px; margin-bottom: 20px;
+            position: relative; display: flex; justify-content: center; align-items: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05); overflow: hidden;
         }
         .math-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
         .math-btn {
-            padding: 10px 20px;
-            background: var(--math-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            padding: 10px 20px; background: var(--math-color); color: white; border: none;
+            border-radius: 8px; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+        .math-btn:active { transform: scale(0.95); }
 
-        /* 数学动画特定元素 */
-        /* 分数：披萨 */
+        /* --- 数学动画元素定义 --- */
+        
+        /* 1. 分数 (披萨) */
         .pizza { width: 150px; height: 150px; border-radius: 50%; background: #ddd; transition: all 1s; position: relative; }
         .pizza-slice { 
             position: absolute; width: 100%; height: 100%; border-radius: 50%; 
             background: var(--math-color); clip-path: polygon(50% 50%, 50% 0%, 100% 0%); 
             transform-origin: 50% 50%; transition: transform 0.5s;
         }
-        /* 面积：网格 */
+
+        /* 2. 面积 (网格) */
         .area-box { width: 200px; height: 120px; border: 2px solid #333; display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(6, 1fr); }
-        .area-tile { background-color: #eee; transition: background-color 0.3s; }
+        .area-tile { background-color: #eee; transition: background-color 0.3s; border: 1px solid rgba(0,0,0,0.05); }
         .area-tile.filled { background-color: var(--math-color); }
-        /* 周长：跑步小人 */
+
+        /* 3. 周长 (跑步) */
         .perimeter-track { width: 200px; height: 120px; border: 4px dashed #ccc; position: relative; }
         .runner { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; top: -12px; left: -12px; transition: all 2s linear; }
 
-        /* --- 英语原有样式 (保留) --- */
+        /* 4. 钟表 (时间) */
+        .clock-face {
+            width: 200px; height: 200px; border: 8px solid #333; border-radius: 50%;
+            position: relative; background: white;
+        }
+        .clock-center {
+            width: 10px; height: 10px; background: #333; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;
+        }
+        .hand {
+            position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center;
+            background: #333; border-radius: 4px; transition: transform 0.5s cubic-bezier(0.4, 2.08, 0.55, 0.44);
+        }
+        .hand.hour { width: 6px; height: 50px; background: #333; }
+        .hand.minute { width: 4px; height: 70px; background: var(--math-color); }
+        .clock-number { position: absolute; width: 30px; height: 30px; text-align: center; line-height: 30px; font-weight: bold; top: 10px; left: 85px; }
+
+        /* 5. 乘法 (阵列) */
+        .array-container { display: grid; gap: 5px; }
+        .array-item { width: 30px; height: 30px; background: var(--math-color); border-radius: 50%; opacity: 0; transform: scale(0); transition: all 0.3s; }
+        .array-item.show { opacity: 1; transform: scale(1); }
+
+        /* 6. 角 (旋转) */
+        .angle-stage { position: relative; width: 200px; height: 200px; }
+        .angle-base { width: 150px; height: 4px; background: #333; position: absolute; top: 50%; left: 25px; }
+        .angle-arm { width: 150px; height: 4px; background: var(--math-color); position: absolute; top: 50%; left: 25px; transform-origin: 0% 50%; transition: transform 1s ease; }
+        .angle-arc {
+            width: 60px; height: 60px; border: 2px solid var(--math-color); border-radius: 50%;
+            position: absolute; top: calc(50% - 60px); left: 25px; border-top: transparent; border-right: transparent;
+            transform: rotate(0deg); opacity: 0.5; transition: transform 1s ease;
+        }
+
+        /* 英语样式 */
         .user-stats { display: flex; gap: 15px; font-size: 0.9rem; font-weight: bold; }
         .stat-item { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; }
         
@@ -219,14 +168,12 @@
         .score-display { font-size: 3rem; font-weight: bold; color: var(--primary-color); margin-bottom: 10px; }
         .btn { background: linear-gradient(to right, var(--primary-color), var(--secondary-color)); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4); }
 
-        /* Toast */
         .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 15px 25px; border-radius: 8px; z-index: 100; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .toast.show { opacity: 1; }
     </style>
 </head>
 <body>
 
-    <!-- 头部 (动态变化) -->
     <header id="main-header">
         <button class="back-btn" id="back-btn" onclick="app.goHome()" style="visibility: hidden;">⬅</button>
         <div class="header-title" id="header-title">全科学习助手</div>
@@ -237,211 +184,258 @@
     </header>
 
     <main>
-        <!-- 1. 首页 Dashboard -->
+        <!-- 1. 首页 -->
         <div id="page-home" class="page active">
             <div class="dashboard-grid">
-                <!-- 模块一：古诗 -->
                 <div class="module-card card-poetry" onclick="app.goToPoetryList()">
                     <div class="module-icon">📖</div>
                     <div class="module-info">
                         <h2>必背古诗</h2>
-                        <p>三年级经典诗词，支持背诵模式</p>
+                        <p>精选12首经典唐诗宋词</p>
                     </div>
                 </div>
-                <!-- 模块二：英语 -->
                 <div class="module-card card-english" onclick="app.startLearning()">
                     <div class="module-icon">🔤</div>
                     <div class="module-info">
                         <h2>单词打卡</h2>
-                        <p>每日5词，发音+测试</p>
+                        <p>每日10词，海量词库随机</p>
                     </div>
                 </div>
-                <!-- 模块三：数学 -->
                 <div class="module-card card-math" onclick="app.goToMathList()">
                     <div class="module-icon">📐</div>
                     <div class="module-info">
                         <h2>数学概念</h2>
-                        <p>动画演示：分数、面积、周长</p>
+                        <p>动画演示：分数、钟表、乘法</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. 古诗列表页 -->
+        <!-- 2. 古诗列表 -->
         <div id="page-poems-list" class="page">
             <h3 style="margin-bottom: 20px;">选择一首诗</h3>
-            <div id="poems-list-container">
-                <!-- JS 生成 -->
-            </div>
+            <div id="poems-list-container"></div>
         </div>
 
-        <!-- 3. 古诗详情页 -->
+        <!-- 3. 古诗详情 -->
         <div id="page-poem-detail" class="page">
             <div class="poem-card" id="poem-display">
-                <div class="poem-title" id="p-title">绝句</div>
-                <div class="poem-author" id="p-author">[唐] 杜甫</div>
-                <div class="poem-content" id="p-content">两个黄鹂鸣翠柳...</div>
+                <div class="poem-title" id="p-title"></div>
+                <div class="poem-author" id="p-author"></div>
+                <div class="poem-content" id="p-content"></div>
             </div>
             <div style="text-align: center;">
                 <button class="mask-btn" onclick="app.togglePoemMask()">👀 背诵模式 (开/关)</button>
             </div>
         </div>
 
-        <!-- 4. 数学列表页 -->
+        <!-- 4. 数学列表 -->
         <div id="page-math-list" class="page">
             <h3 style="margin-bottom: 20px;">选择概念演示</h3>
-            <div id="math-list-container">
-                <!-- JS 生成 -->
-            </div>
+            <div id="math-list-container"></div>
         </div>
 
-        <!-- 5. 数学动画页 -->
+        <!-- 5. 数学演示 -->
         <div id="page-math-demo" class="page">
-            <h3 id="math-demo-title" style="text-align:center; margin-bottom:10px;">分数的认识</h3>
-            <div class="math-stage" id="math-stage-box">
-                <!-- 动态注入动画元素 -->
-            </div>
-            <div class="math-controls" id="math-controls-box">
-                <!-- 动态注入控制按钮 -->
-            </div>
+            <h3 id="math-demo-title" style="text-align:center; margin-bottom:10px;"></h3>
+            <div class="math-stage" id="math-stage-box"></div>
+            <div class="math-controls" id="math-controls-box"></div>
         </div>
 
-        <!-- 6. 英语学习页 -->
+        <!-- 6. 英语学习 -->
         <div id="page-learn" class="page">
             <div class="flashcard">
                 <button class="speaker-btn" onclick="app.speakCurrentWord()">🔊</button>
-                <div class="word-emoji" id="learn-emoji">🍎</div>
-                <div class="word-en" id="learn-word">Apple</div>
-                <div class="word-phonetic" id="learn-phonetic">/ˈæp.l/</div>
-                <div class="word-cn" id="learn-cn">苹果</div>
+                <div class="word-emoji" id="learn-emoji"></div>
+                <div class="word-en" id="learn-word"></div>
+                <div class="word-phonetic" id="learn-phonetic"></div>
+                <div class="word-cn" id="learn-cn"></div>
             </div>
             <div class="controls">
                 <button class="control-btn btn-forget" onclick="app.nextWord(false)">不认识</button>
                 <button class="control-btn btn-know" onclick="app.nextWord(true)">认识</button>
             </div>
             <div style="margin-top: 15px; color: #999; font-size: 0.9rem; text-align:center;">
-                进度: <span id="learn-progress">1/5</span>
+                进度: <span id="learn-progress">1/10</span>
             </div>
         </div>
 
-        <!-- 7. 英语测试页 -->
+        <!-- 7. 英语测试 -->
         <div id="page-quiz" class="page">
             <div class="quiz-container">
                 <div class="question-box">
                     <p style="color:#888; margin-bottom: 10px;">请选择正确的单词</p>
-                    <div class="question-text" id="quiz-question">苹果</div>
+                    <div class="question-text" id="quiz-question"></div>
                 </div>
                 <div class="options-grid" id="quiz-options"></div>
             </div>
         </div>
 
-        <!-- 8. 结果页 -->
+        <!-- 8. 结果 -->
         <div id="page-result" class="page">
             <div class="home-card" style="text-align:center;">
-                <div class="result-emoji" id="result-emoji">🎉</div>
-                <div class="score-display" id="final-score">100</div>
+                <div class="result-emoji" id="result-emoji"></div>
+                <div class="score-display" id="final-score"></div>
                 <p style="font-weight: bold; margin-bottom: 20px;">今日打卡成功！</p>
                 <div class="result-detail">
-                    <p>连续坚持: <span id="result-streak">1</span> 天</p>
-                    <p>获得积分: <span id="result-points">+10</span></p>
+                    <p>连续坚持: <span id="result-streak"></span> 天</p>
+                    <p>获得积分: <span id="result-points"></span></p>
                 </div>
                 <button class="btn" onclick="app.goHome()">返回首页</button>
             </div>
         </div>
     </main>
 
-    <div id="toast" class="toast">提示信息</div>
+    <div id="toast" class="toast"></div>
 
     <script>
-        // --- 数据定义 ---
-
+        // --- 1. 扩充数据：古诗 (12首) ---
         const POEMS = [
-            { id: 1, title: '绝句', author: '[唐] 杜甫', content: '两个黄鹂鸣翠柳，\n一行白鹭上青天。\n窗含西岭千秋雪，\n门泊东吴万里船。' },
-            { id: 2, title: '惠崇春江晚景', author: '[宋] 苏轼', content: '竹外桃花三两枝，\n春江水暖鸭先知。\n蒌蒿满地芦芽短，\n正是河豚欲上时。' },
-            { id: 3, title: '三衢道中', author: '[宋] 曾几', content: '梅子黄时日日晴，\n小溪泛尽却山行。\n绿阴不减来时路，\n添得黄鹂四五声。' },
-            { id: 4, title: '忆江南', author: '[唐] 白居易', content: '江南好，\n风景旧曾谙。\n日出江花红胜火，\n春来江水绿如蓝。\n能不忆江南？' }
+            { id: 1, title: '静夜思', author: '[唐] 李白', content: '床前明月光，\n疑是地上霜。\n举头望明月，\n低头思故乡。' },
+            { id: 2, title: '望庐山瀑布', author: '[唐] 李白', content: '日照香炉生紫烟，\n遥看瀑布挂前川。\n飞流直下三千尺，\n疑是银河落九天。' },
+            { id: 3, title: '赠汪伦', author: '[唐] 李白', content: '李白乘舟将欲行，\n忽闻岸上踏歌声。\n桃花潭水深千尺，\n不及汪伦送我情。' },
+            { id: 4, title: '绝句', author: '[唐] 杜甫', content: '两个黄鹂鸣翠柳，\n一行白鹭上青天。\n窗含西岭千秋雪，\n门泊东吴万里船。' },
+            { id: 5, title: '春晓', author: '[唐] 孟浩然', content: '春眠不觉晓，\n处处闻啼鸟。\n夜来风雨声，\n花落知多少。' },
+            { id: 6, title: '悯农', author: '[唐] 李绅', content: '锄禾日当午，\n汗滴禾下土。\n谁知盘中餐，\n粒粒皆辛苦。' },
+            { id: 7, title: '咏鹅', author: '[唐] 骆宾王', content: '鹅，鹅，鹅，\n曲项向天歌。\n白毛浮绿水，\n红掌拨清波。' },
+            { id: 8, title: '登鹳雀楼', author: '[唐] 王之涣', content: '白日依山尽，\n黄河入海流。\n欲穷千里目，\n更上一层楼。' },
+            { id: 9, title: '江雪', author: '[唐] 柳宗元', content: '千山鸟飞绝，\n万径人踪灭。\n孤舟蓑笠翁，\n独钓寒江雪。' },
+            { id: 10, title: '游子吟', author: '[唐] 孟郊', content: '慈母手中线，\n游子身上衣。\n临行密密缝，\n意恐迟迟归。' },
+            { id: 11, title: '寻隐者不遇', author: '[唐] 贾岛', content: '松下问童子，\n言师采药去。\n只在此山中，\n云深不知处。' },
+            { id: 12, title: '风', author: '[唐] 李侨', content: '解落三秋叶，\n能开二月花。\n过江千尺浪，\n入竹万竿斜。' }
         ];
 
+        // --- 2. 扩充数据：数学概念 (6个) ---
         const MATH_DEMOS = [
             {
-                id: 'fraction',
-                title: '分数的认识 (1/2)',
-                desc: '把一个圆平均分成两份，每份是它的二分之一。',
-                init: (stage) => {
-                    stage.innerHTML = `<div class="pizza"><div class="pizza-slice"></div></div>`;
-                },
-                action: () => {
-                    const slice = document.querySelector('.pizza-slice');
-                    slice.style.transform = 'rotate(0deg)';
-                },
-                action2: () => {
-                    const slice = document.querySelector('.pizza-slice');
-                    slice.style.transform = 'rotate(180deg)'; // 转半圈
-                }
+                id: 'fraction', title: '分数的认识 (1/2)', desc: '把一个圆平均分成两份，每份是它的二分之一。',
+                init: (stage) => { stage.innerHTML = `<div class="pizza"><div class="pizza-slice"></div></div>`; },
+                action: () => { const slice = document.querySelector('.pizza-slice'); slice.style.transform = 'rotate(180deg)'; },
+                reset: () => { document.querySelector('.pizza-slice').style.transform = 'rotate(0deg)'; }
             },
             {
-                id: 'area',
-                title: '面积的概念',
-                desc: '物体的表面或封闭图形的大小，就是它们的面积。',
+                id: 'area', title: '面积的概念', desc: '物体的表面或封闭图形的大小，就是它们的面积。',
                 init: (stage) => {
                     let html = '<div class="area-box">';
                     for(let i=0; i<60; i++) html += `<div class="area-tile"></div>`;
                     html += '</div>';
                     stage.innerHTML = html;
                 },
+                action: () => { document.querySelectorAll('.area-tile').forEach((t, i) => setTimeout(() => t.classList.add('filled'), i * 10)); },
+                reset: () => { document.querySelectorAll('.area-tile').forEach(t => t.classList.remove('filled')); }
+            },
+            {
+                id: 'perimeter', title: '周长的认识', desc: '封闭图形一周的长度，是它的周长。',
+                init: (stage) => { stage.innerHTML = `<div class="perimeter-track"><div class="runner"></div></div>`; },
                 action: () => {
-                    document.querySelectorAll('.area-tile').forEach((t, i) => {
-                        setTimeout(() => t.classList.add('filled'), i * 10);
-                    });
-                },
-                reset: () => {
-                    document.querySelectorAll('.area-tile').forEach(t => t.classList.remove('filled'));
+                    const runner = document.querySelector('.runner');
+                    runner.style.transition = 'none'; runner.style.transform = 'translate(0, 0)';
+                    runner.offsetHeight;
+                    runner.style.transition = 'top 0.5s linear, left 0.5s linear';
+                    runner.style.left = '200px'; setTimeout(() => runner.style.top = '120px', 500);
+                    setTimeout(() => runner.style.left = '-12px', 1000); setTimeout(() => runner.style.top = '-12px', 1500);
                 }
             },
             {
-                id: 'perimeter',
-                title: '周长的认识',
-                desc: '封闭图形一周的长度，是它的周长。',
+                id: 'clock', title: '认识钟表', desc: '时针短，分针长。分针走一圈是60分。',
                 init: (stage) => {
-                    stage.innerHTML = `<div class="perimeter-track"><div class="runner"></div></div>`;
+                    stage.innerHTML = `
+                        <div class="clock-face">
+                            <div class="clock-center"></div>
+                            <div class="clock-number">12</div>
+                            <div class="hand hour" id="hand-h"></div>
+                            <div class="hand minute" id="hand-m"></div>
+                        </div>`;
                 },
                 action: () => {
-                    const runner = document.querySelector('.runner');
-                    // 重置
-                    runner.style.transition = 'none';
-                    runner.style.transform = 'translate(0, 0)';
-                    // 强制重绘
-                    runner.offsetHeight; 
-                    // 动画跑一圈
-                    runner.style.transition = 'top 0.5s linear, left 0.5s linear';
-                    runner.style.left = '200px'; // 右
-                    setTimeout(() => runner.style.top = '120px', 500); // 下
-                    setTimeout(() => runner.style.left = '-12px', 1000); // 左
-                    setTimeout(() => runner.style.top = '-12px', 1500); // 上
+                    // 设置为 3:30
+                    document.getElementById('hand-h').style.transform = `translateX(-50%) rotate(${3.5 * 30}deg)`; // 3点过半格
+                    document.getElementById('hand-m').style.transform = `translateX(-50%) rotate(180deg)`;
+                }
+            },
+            {
+                id: 'multiplication', title: '乘法的意义', desc: '乘法是求几个相同加数和的简便运算。如 3 x 4 = 12。',
+                init: (stage) => {
+                    stage.innerHTML = '<div class="array-container" id="array-box" style="grid-template-columns: repeat(4, 1fr);"></div>';
+                },
+                action: () => {
+                    const box = document.getElementById('array-box');
+                    box.innerHTML = '';
+                    for(let i=0; i<12; i++) {
+                        const dot = document.createElement('div');
+                        dot.className = 'array-item';
+                        box.appendChild(dot);
+                        setTimeout(() => dot.classList.add('show'), i * 50);
+                    }
+                },
+                reset: () => { document.getElementById('array-box').innerHTML = ''; }
+            },
+            {
+                id: 'angles', title: '角的分类', desc: '锐角(<90度)，直角(=90度)，钝角(>90度)。',
+                init: (stage) => {
+                    stage.innerHTML = `
+                        <div class="angle-stage">
+                            <div class="angle-base"></div>
+                            <div class="angle-arm" id="angle-arm"></div>
+                            <div class="angle-arc" id="angle-arc"></div>
+                            <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); font-size:24px; font-weight:bold;" id="angle-text">0°</div>
+                        </div>`;
+                },
+                action: (type) => {
+                    const arm = document.getElementById('angle-arm');
+                    const arc = document.getElementById('angle-arc');
+                    const text = document.getElementById('angle-text');
+                    
+                    if(type === 'acute') { // 锐角
+                        arm.style.transform = 'rotate(45deg)';
+                        arc.style.transform = 'rotate(45deg)';
+                        text.innerText = '45° (锐角)';
+                    } else if (type === 'right') { // 直角
+                        arm.style.transform = 'rotate(90deg)';
+                        arc.style.transform = 'rotate(90deg)';
+                        text.innerText = '90° (直角)';
+                    } else { // 钝角
+                        arm.style.transform = 'rotate(135deg)';
+                        arc.style.transform = 'rotate(135deg)';
+                        text.innerText = '135° (钝角)';
+                    }
                 }
             }
         ];
 
+        // --- 3. 扩充数据：单词 (增加到50+，涵盖更多年级和主题) ---
         const VOCABULARY = [
-            { en: 'Apple', phonetic: '/ˈæp.l/', cn: '苹果', emoji: '🍎' },
-            { en: 'Banana', phonetic: '/bəˈnæn.ə/', cn: '香蕉', emoji: '🍌' },
-            { en: 'Orange', phonetic: '/ˈɔːr.ɪndʒ/', cn: '橙子', emoji: '🍊' },
-            { en: 'Cat', phonetic: '/kæt/', cn: '猫', emoji: '🐱' },
-            { en: 'Dog', phonetic: '/dɒɡ/', cn: '狗', emoji: '🐶' },
-            { en: 'Elephant', phonetic: '/ˈel.ɪ.fənt/', cn: '大象', emoji: '🐘' },
-            { en: 'Fish', phonetic: '/fɪʃ/', cn: '鱼', emoji: '🐟' },
-            { en: 'Green', phonetic: '/ɡriːn/', cn: '绿色', emoji: '🟢' },
-            { en: 'Red', phonetic: '/red/', cn: '红色', emoji: '🔴' },
-            { en: 'Blue', phonetic: '/bluː/', cn: '蓝色', emoji: '🔵' },
-            { en: 'School', phonetic: '/skuːl/', cn: '学校', emoji: '🏫' },
-            { en: 'Book', phonetic: '/bʊk/', cn: '书', emoji: '📖' },
-            { en: 'Pencil', phonetic: '/ˈpen.səl/', cn: '铅笔', emoji: '✏️' },
-            { en: 'Teacher', phonetic: '/ˈtiː.tʃər/', cn: '老师', emoji: '👩‍🏫' },
-            { en: 'Friend', phonetic: '/frend/', cn: '朋友', emoji: '🤝' }
+            // 食物
+            { en: 'Apple', phonetic: '/ˈæp.l/', cn: '苹果', emoji: '🍎' }, { en: 'Banana', phonetic: '/bəˈnæn.ə/', cn: '香蕉', emoji: '🍌' },
+            { en: 'Bread', phonetic: '/bred/', cn: '面包', emoji: '🍞' }, { en: 'Rice', phonetic: '/raɪs/', cn: '米饭', emoji: '🍚' },
+            { en: 'Egg', phonetic: '/eɡ/', cn: '鸡蛋', emoji: '🥚' }, { en: 'Milk', phonetic: '/mɪlk/', cn: '牛奶', emoji: '🥛' },
+            { en: 'Water', phonetic: '/ˈwɔː.tər/', cn: '水', emoji: '💧' }, { en: 'Cake', phonetic: '/keɪk/', cn: '蛋糕', emoji: '🍰' },
+            // 动物
+            { en: 'Cat', phonetic: '/kæt/', cn: '猫', emoji: '🐱' }, { en: 'Dog', phonetic: '/dɒɡ/', cn: '狗', emoji: '🐶' },
+            { en: 'Bird', phonetic: '/bɜːrd/', cn: '鸟', emoji: '🐦' }, { en: 'Panda', phonetic: '/ˈpæn.də/', cn: '熊猫', emoji: '🐼' },
+            { en: 'Tiger', phonetic: '/ˈtaɪ.ɡər/', cn: '老虎', emoji: '🐯' }, { en: 'Monkey', phonetic: '/ˈmʌŋ.ki/', cn: '猴子', emoji: '🐵' },
+            // 颜色
+            { en: 'Red', phonetic: '/red/', cn: '红色', emoji: '🔴' }, { en: 'Blue', phonetic: '/bluː/', cn: '蓝色', emoji: '🔵' },
+            { en: 'Green', phonetic: '/ɡriːn/', cn: '绿色', emoji: '🟢' }, { en: 'Yellow', phonetic: '/ˈjel.əʊ/', cn: '黄色', emoji: '🟡' },
+            { en: 'Black', phonetic: '/blæk/', cn: '黑色', emoji: '⚫' }, { en: 'White', phonetic: '/waɪt/', cn: '白色', emoji: '⚪' },
+            // 身体
+            { en: 'Head', phonetic: '/hed/', cn: '头', emoji: '🗣️' }, { en: 'Hand', phonetic: '/hænd/', cn: '手', emoji: '✋' },
+            { en: 'Foot', phonetic: '/fʊt/', cn: '脚', emoji: '🦶' }, { en: 'Eye', phonetic: '/aɪ/', cn: '眼睛', emoji: '👁️' },
+            // 学校
+            { en: 'School', phonetic: '/skuːl/', cn: '学校', emoji: '🏫' }, { en: 'Book', phonetic: '/bʊk/', cn: '书', emoji: '📖' },
+            { en: 'Pen', phonetic: '/pen/', cn: '钢笔', emoji: '🖊️' }, { en: 'Bag', phonetic: '/bæɡ/', cn: '书包', emoji: '🎒' },
+            { en: 'Desk', phonetic: '/desk/', cn: '书桌', emoji: '🪑' }, { en: 'Ruler', phonetic: '/ˈruː.lər/', cn: '尺子', emoji: '📏' },
+            // 数字
+            { en: 'One', phonetic: '/wʌn/', cn: '一', emoji: '1️⃣' }, { en: 'Two', phonetic: '/tuː/', cn: '二', emoji: '2️⃣' },
+            { en: 'Three', phonetic: '/θriː/', cn: '三', emoji: '3️⃣' }, { en: 'Ten', phonetic: '/ten/', cn: '十', emoji: '🔟' },
+            // 其他
+            { en: 'Family', phonetic: '/ˈfæm.əl.i/', cn: '家庭', emoji: '👨‍👩‍👧' }, { en: 'Friend', phonetic: '/frend/', cn: '朋友', emoji: '🤝' },
+            { en: 'Happy', phonetic: '/ˈhæp.i/', cn: '快乐', emoji: '😊' }, { en: 'Sad', phonetic: '/sæd/', cn: '伤心', emoji: '😢' },
+            { en: 'Run', phonetic: '/rʌn/', cn: '跑', emoji: '🏃' }, { en: 'Jump', phonetic: '/dʒʌmp/', cn: '跳', emoji: '🦘' },
+            { en: 'Big', phonetic: '/bɪɡ/', cn: '大', emoji: '🐘' }, { en: 'Small', phonetic: '/smɔːl/', cn: '小', emoji: '🐜' }
         ];
 
         // --- 应用逻辑 ---
-
         const app = {
             state: {
                 streak: 0, points: 0, lastLoginDate: null,
@@ -477,28 +471,21 @@
                 window.speechSynthesis.speak(utterance);
             },
 
-            // --- 导航 ---
             showPage: function(pageId, title = '全科学习助手', showBack = true) {
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 document.getElementById(pageId).classList.add('active');
-                
                 const headerTitle = document.getElementById('header-title');
                 const backBtn = document.getElementById('back-btn');
                 const stats = document.getElementById('home-stats');
-                
                 headerTitle.innerText = title;
                 backBtn.style.visibility = showBack ? 'visible' : 'hidden';
                 stats.style.visibility = showBack ? 'hidden' : 'visible';
-                
-                // 如果离开首页，清理任何动画
-                if(pageId === 'page-home') {
-                    document.getElementById('math-stage-box').innerHTML = '';
-                }
+                if(pageId === 'page-home') document.getElementById('math-stage-box').innerHTML = '';
             },
 
             goHome: function() { this.showPage('page-home'); },
 
-            // --- 古诗模块 ---
+            // --- 古诗 ---
             goToPoetryList: function() {
                 const container = document.getElementById('poems-list-container');
                 container.innerHTML = POEMS.map(p => `
@@ -509,7 +496,6 @@
                 `).join('');
                 this.showPage('page-poems-list', '必背古诗');
             },
-
             showPoemDetail: function(id) {
                 const poem = POEMS.find(p => p.id === id);
                 document.getElementById('p-title').innerText = poem.title;
@@ -518,12 +504,9 @@
                 document.querySelector('.poem-card').classList.remove('masked');
                 this.showPage('page-poem-detail', poem.title);
             },
+            togglePoemMask: function() { document.querySelector('.poem-card').classList.toggle('masked'); },
 
-            togglePoemMask: function() {
-                document.querySelector('.poem-card').classList.toggle('masked');
-            },
-
-            // --- 数学模块 ---
+            // --- 数学 ---
             goToMathList: function() {
                 const container = document.getElementById('math-list-container');
                 container.innerHTML = MATH_DEMOS.map(m => `
@@ -534,47 +517,51 @@
                 `).join('');
                 this.showPage('page-math-list', '数学概念');
             },
-
             showMathDemo: function(id) {
                 const demo = MATH_DEMOS.find(m => m.id === id);
                 this.showPage('page-math-demo', demo.title);
-                
                 const stage = document.getElementById('math-stage-box');
                 const controls = document.getElementById('math-controls-box');
-                
-                stage.innerHTML = '';
-                controls.innerHTML = '';
-
+                stage.innerHTML = ''; controls.innerHTML = '';
                 demo.init(stage);
 
-                // 生成控制按钮
-                const btn1 = document.createElement('button');
-                btn1.className = 'math-btn';
-                btn1.innerText = id === 'fraction' ? '转半圈 (1/2)' : (id === 'area' ? '铺满面积' : '跑一圈');
-                btn1.onclick = demo.action;
-                controls.appendChild(btn1);
+                if (id === 'angles') {
+                    // 特殊处理：角需要三个按钮
+                    ['acute', 'right', 'obtuse'].forEach(type => {
+                        const btn = document.createElement('button');
+                        btn.className = 'math-btn';
+                        btn.innerText = type === 'acute' ? '锐角' : (type === 'right' ? '直角' : '钝角');
+                        btn.onclick = () => demo.action(type);
+                        controls.appendChild(btn);
+                    });
+                } else {
+                    // 其他演示通用逻辑
+                    const btn1 = document.createElement('button');
+                    btn1.className = 'math-btn';
+                    if(id === 'fraction') btn1.innerText = '演示 (1/2)';
+                    else if(id === 'area') btn1.innerText = '填满面积';
+                    else if(id === 'perimeter') btn1.innerText = '跑一圈';
+                    else if(id === 'clock') btn1.innerText = '调到 3:30';
+                    else if(id === 'multiplication') btn1.innerText = '演示 (3x4)';
+                    
+                    btn1.onclick = demo.action;
+                    controls.appendChild(btn1);
 
-                if(id === 'fraction') {
-                    const btn0 = document.createElement('button');
-                    btn0.className = 'math-btn';
-                    btn0.innerText = '重置';
-                    btn0.onclick = () => document.querySelector('.pizza-slice').style.transform = 'rotate(0deg)';
-                    controls.appendChild(btn0);
-                }
-                if(id === 'area') {
-                    const btnReset = document.createElement('button');
-                    btnReset.className = 'math-btn';
-                    btnReset.innerText = '重置';
-                    btnReset.onclick = demo.reset;
-                    controls.appendChild(btnReset);
+                    if (demo.reset) {
+                        const btnReset = document.createElement('button');
+                        btnReset.className = 'math-btn';
+                        btnReset.innerText = '重置';
+                        btnReset.onclick = demo.reset;
+                        controls.appendChild(btnReset);
+                    }
                 }
             },
 
-            // --- 英语模块 (复用之前的逻辑) ---
+            // --- 英语 ---
             startLearning: function() {
                 this.unlockAudio();
                 const shuffled = [...VOCABULARY].sort(() => 0.5 - Math.random());
-                this.state.learnQueue = shuffled.slice(0, 5);
+                this.state.learnQueue = shuffled.slice(0, 10); // 修改：取10个
                 this.state.currentLearnIndex = 0;
                 this.renderLearnCard();
                 this.showPage('page-learn', '单词学习');
@@ -587,12 +574,10 @@
                 document.getElementById('learn-phonetic').innerText = word.phonetic;
                 document.getElementById('learn-cn').innerText = word.cn;
                 document.getElementById('learn-cn').classList.remove('visible');
-                document.getElementById('learn-progress').innerText = `${this.state.currentLearnIndex + 1}/5`;
+                document.getElementById('learn-progress').innerText = `${this.state.currentLearnIndex + 1}/10`; // 修改：显示10
             },
 
-            speakCurrentWord: function() {
-                this.speakText(this.state.learnQueue[this.state.currentLearnIndex].en);
-            },
+            speakCurrentWord: function() { this.speakText(this.state.learnQueue[this.state.currentLearnIndex].en); },
 
             nextWord: function(known) {
                 const cnDiv = document.getElementById('learn-cn');
@@ -624,7 +609,6 @@
                 const otherWords = VOCABULARY.filter(w => w.en !== questionWord.en);
                 const distractors = otherWords.sort(() => 0.5 - Math.random()).slice(0, 3);
                 options = options.concat(distractors).sort(() => 0.5 - Math.random());
-
                 const container = document.getElementById('quiz-options');
                 container.innerHTML = options.map(opt => `
                     <div class="option-btn" onclick="app.handleQuizAnswer(this, '${opt.en}' === '${questionWord.en}', '${questionWord.en}')">${opt.en}</div>
@@ -655,12 +639,12 @@
                 const isNewDay = this.state.lastLoginDate !== today;
                 if (isNewDay) {
                     this.state.streak++;
-                    this.state.points += (10 + this.state.quizScore * 2);
+                    this.state.points += (10 + this.state.quizScore * 2); // 分数计算：基础10 + 每题2分 (10题共20分，总分30)
                     this.state.lastLoginDate = today;
                     this.saveData();
                 }
-                document.getElementById('result-emoji').innerText = this.state.quizScore === 5 ? '🏆' : '🎉';
-                document.getElementById('final-score').innerText = `${this.state.quizScore * 20}分`;
+                document.getElementById('result-emoji').innerText = this.state.quizScore === 10 ? '🏆' : '🎉';
+                document.getElementById('final-score').innerText = `${this.state.quizScore * 10}分`; // 10题每题10分，满分100
                 document.getElementById('result-streak').innerText = this.state.streak;
                 this.showPage('page-result', '打卡成功', false);
                 this.updateHeader();
@@ -677,9 +661,7 @@
             },
             saveData: function() {
                 localStorage.setItem('vocabApp_data', JSON.stringify({
-                    streak: this.state.streak,
-                    points: this.state.points,
-                    lastLoginDate: this.state.lastLoginDate
+                    streak: this.state.streak, points: this.state.points, lastLoginDate: this.state.lastLoginDate
                 }));
             },
             updateHeader: function() {
