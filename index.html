@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>三年级英语单词打卡</title>
+    <title>三年级全科打卡</title>
     <style>
         :root {
             --primary-color: #4facfe;
             --secondary-color: #00f2fe;
-            --accent-color: #ff9a9e;
+            --poetry-color: #ff9a9e;
+            --math-color: #a18cd1;
             --text-color: #333;
             --bg-color: #f0f4f8;
             --card-bg: #ffffff;
@@ -20,13 +21,13 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            user-select: none; /* 防止长按选中文本 */
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, var(--bg-color) 0%, #e6e9f0 100%);
+            background: var(--bg-color);
             color: var(--text-color);
             height: 100vh;
             display: flex;
@@ -34,7 +35,7 @@
             overflow: hidden;
         }
 
-        /* 顶部导航栏 */
+        /* 通用头部 */
         header {
             background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
             padding: 15px 20px;
@@ -45,22 +46,8 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             z-index: 10;
         }
-
-        .user-stats {
-            display: flex;
-            gap: 15px;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(255,255,255,0.2);
-            padding: 4px 10px;
-            border-radius: 20px;
-        }
+        .header-title { font-weight: bold; font-size: 1.1rem; }
+        .back-btn { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 5px;}
 
         /* 主内容区域 */
         main {
@@ -68,12 +55,9 @@
             position: relative;
             overflow: hidden;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
-        /* 页面切换容器 */
+        /* 页面切换逻辑 */
         .page {
             position: absolute;
             top: 0;
@@ -83,12 +67,11 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease, transform 0.3s ease;
-            transform: scale(0.95);
+            transform: scale(0.98);
+            overflow-y: auto; /* 允许页面内部滚动 */
         }
 
         .page.active {
@@ -98,271 +81,232 @@
             z-index: 5;
         }
 
-        /* 首页样式 */
-        .home-card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .app-logo {
-            font-size: 4rem;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .btn {
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
-            transition: transform 0.1s;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .btn:active {
-            transform: scale(0.96);
-        }
-
-        /* 学习/单词卡片样式 */
-        .flashcard {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 350px;
-            height: 400px;
-            border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            perspective: 1000px;
-        }
-
-        .word-emoji {
-            font-size: 5rem;
-            margin-bottom: 20px;
-        }
-
-        .word-en {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--text-color);
-            margin-bottom: 5px;
-        }
-
-        .word-phonetic {
-            font-size: 1.1rem;
-            color: #888;
-            font-family: "Lucida Sans Unicode", "Arial Unicode MS", sans-serif;
-            margin-bottom: 20px;
-            background: #f0f0f0;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-
-        .word-cn {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            margin-top: 10px;
-            opacity: 0; /* 默认隐藏中文，增加互动 */
-            transition: opacity 0.3s;
-        }
-
-        .word-cn.visible {
-            opacity: 1;
-        }
-
-        .speaker-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #f0f0f0;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-        }
-
-        .controls {
-            display: flex;
-            gap: 20px;
-            width: 100%;
-            max-width: 350px;
-            margin-top: 30px;
-        }
-
-        .control-btn {
-            flex: 1;
-            padding: 15px;
-            border-radius: 15px;
-            border: none;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .btn-know {
-            background-color: var(--success-color);
-            color: white;
-        }
-
-        .btn-forget {
-            background-color: #e0e0e0;
-            color: #666;
-        }
-
-        /* 测试页面样式 */
-        .quiz-container {
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .question-box {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .question-text {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--text-color);
-        }
-
-        .options-grid {
+        /* --- 首页模块样式 --- */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
         }
 
-        .option-btn {
+        .module-card {
             background: var(--card-bg);
-            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 30px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.1s;
+            border-left: 8px solid #ccc;
+        }
+
+        .module-card:active { transform: scale(0.98); }
+
+        .card-poetry { border-color: var(--poetry-color); }
+        .card-english { border-color: var(--primary-color); }
+        .card-math { border-color: var(--math-color); }
+
+        .module-icon { font-size: 3rem; margin-right: 20px; }
+        .module-info h2 { font-size: 1.3rem; margin-bottom: 5px; }
+        .module-info p { color: #888; font-size: 0.9rem; }
+
+        /* --- 列表页样式 (古诗/数学列表) --- */
+        .list-item {
+            background: white;
             padding: 20px;
             border-radius: 15px;
-            font-size: 1.1rem;
-            color: var(--text-color);
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
             cursor: pointer;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-            transition: all 0.2s;
         }
+        .list-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+        .list-desc { color: #666; font-size: 0.9rem; }
 
-        .option-btn:active {
-            transform: scale(0.98);
-        }
-
-        .option-btn.correct {
-            background-color: #e8f5e9;
-            border-color: var(--success-color);
-            color: var(--success-color);
-        }
-
-        .option-btn.wrong {
-            background-color: #ffebee;
-            border-color: var(--error-color);
-            color: var(--error-color);
-        }
-
-        /* 结果页面 */
-        .result-emoji {
-            font-size: 5rem;
-            margin-bottom: 20px;
-            animation: bounce 1s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .score-display {
-            font-size: 3rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .result-detail {
-            color: #666;
-            margin-bottom: 30px;
+        /* --- 古诗详情页 --- */
+        .poem-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
             text-align: center;
-            line-height: 1.6;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNmMGYwZjAiLz4KPC9zdmc+');
+        }
+        .poem-title { font-size: 1.8rem; font-weight: bold; color: #333; margin-bottom: 10px; font-family: "Kaiti", "楷体", serif; }
+        .poem-author { color: #666; font-size: 1rem; margin-bottom: 30px; }
+        .poem-content { font-size: 1.4rem; line-height: 2; color: #444; font-family: "Kaiti", "楷体", serif; white-space: pre-wrap; }
+        
+        .mask-btn {
+            margin-top: 30px;
+            background: var(--poetry-color);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+        }
+        .masked .poem-content { color: transparent; text-shadow: 0 0 10px rgba(0,0,0,0.2); }
+
+        /* --- 数学动画演示区 --- */
+        .math-stage {
+            background: white;
+            border-radius: 20px;
+            height: 300px;
+            margin-bottom: 20px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .math-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .math-btn {
+            padding: 10px 20px;
+            background: var(--math-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
         }
 
-        /* 提示 Toast */
-        .toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 8px;
-            z-index: 100;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+        /* 数学动画特定元素 */
+        /* 分数：披萨 */
+        .pizza { width: 150px; height: 150px; border-radius: 50%; background: #ddd; transition: all 1s; position: relative; }
+        .pizza-slice { 
+            position: absolute; width: 100%; height: 100%; border-radius: 50%; 
+            background: var(--math-color); clip-path: polygon(50% 50%, 50% 0%, 100% 0%); 
+            transform-origin: 50% 50%; transition: transform 0.5s;
         }
-        .toast.show {
-            opacity: 1;
-        }
+        /* 面积：网格 */
+        .area-box { width: 200px; height: 120px; border: 2px solid #333; display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(6, 1fr); }
+        .area-tile { background-color: #eee; transition: background-color 0.3s; }
+        .area-tile.filled { background-color: var(--math-color); }
+        /* 周长：跑步小人 */
+        .perimeter-track { width: 200px; height: 120px; border: 4px dashed #ccc; position: relative; }
+        .runner { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; top: -12px; left: -12px; transition: all 2s linear; }
+
+        /* --- 英语原有样式 (保留) --- */
+        .user-stats { display: flex; gap: 15px; font-size: 0.9rem; font-weight: bold; }
+        .stat-item { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; }
+        
+        .flashcard { background: var(--card-bg); width: 100%; max-width: 350px; height: 400px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin: 0 auto; perspective: 1000px; }
+        .word-emoji { font-size: 5rem; margin-bottom: 20px; }
+        .word-en { font-size: 2.5rem; font-weight: bold; color: var(--text-color); margin-bottom: 5px; }
+        .word-phonetic { font-size: 1.1rem; color: #888; margin-bottom: 20px; background: #f0f0f0; padding: 2px 8px; border-radius: 4px; }
+        .word-cn { font-size: 1.5rem; color: var(--primary-color); margin-top: 10px; opacity: 0; transition: opacity 0.3s; }
+        .word-cn.visible { opacity: 1; }
+        .speaker-btn { position: absolute; top: 20px; right: 20px; background: #f0f0f0; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--primary-color); }
+        .controls { display: flex; gap: 20px; width: 100%; max-width: 350px; margin: 30px auto 0; }
+        .control-btn { flex: 1; padding: 15px; border-radius: 15px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        .btn-know { background-color: var(--success-color); color: white; }
+        .btn-forget { background-color: #e0e0e0; color: #666; }
+
+        .quiz-container { width: 100%; max-width: 400px; margin: 0 auto; }
+        .question-box { background: var(--card-bg); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .question-text { font-size: 1.8rem; font-weight: bold; color: var(--text-color); }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .option-btn { background: var(--card-bg); border: 2px solid transparent; padding: 20px; border-radius: 15px; font-size: 1.1rem; color: var(--text-color); cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.05); transition: all 0.2s; text-align: center; }
+        .option-btn.correct { background-color: #e8f5e9; border-color: var(--success-color); color: var(--success-color); }
+        .option-btn.wrong { background-color: #ffebee; border-color: var(--error-color); color: var(--error-color); }
+        
+        .result-emoji { font-size: 5rem; margin-bottom: 20px; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .score-display { font-size: 3rem; font-weight: bold; color: var(--primary-color); margin-bottom: 10px; }
+        .btn { background: linear-gradient(to right, var(--primary-color), var(--secondary-color)); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4); }
+
+        /* Toast */
+        .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 15px 25px; border-radius: 8px; z-index: 100; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">🦁 单词打卡</div>
-        <div class="user-stats">
-            <div class="stat-item" title="连续打卡天数">
-                🔥 <span id="streak-count">0</span>
-            </div>
-            <div class="stat-item" title="总积分">
-                ⭐ <span id="total-points">0</span>
-            </div>
+    <!-- 头部 (动态变化) -->
+    <header id="main-header">
+        <button class="back-btn" id="back-btn" onclick="app.goHome()" style="visibility: hidden;">⬅</button>
+        <div class="header-title" id="header-title">全科学习助手</div>
+        <div class="user-stats" id="home-stats">
+            <div class="stat-item">🔥 <span id="streak-count">0</span></div>
+            <div class="stat-item">⭐ <span id="total-points">0</span></div>
         </div>
     </header>
 
     <main>
-        <!-- 1. 首页 -->
+        <!-- 1. 首页 Dashboard -->
         <div id="page-home" class="page active">
-            <div class="home-card">
-                <div class="app-logo">📚</div>
-                <h1>三年级英语</h1>
-                <p style="color: #666; margin-bottom: 20px;">今日单词，等你来挑战！</p>
-                <button class="btn" onclick="app.startLearning()">开始今日打卡</button>
-                <div style="margin-top: 20px; font-size: 0.9rem; color: #999;">
-                    上次打卡: <span id="last-login-time">从未</span>
+            <div class="dashboard-grid">
+                <!-- 模块一：古诗 -->
+                <div class="module-card card-poetry" onclick="app.goToPoetryList()">
+                    <div class="module-icon">📖</div>
+                    <div class="module-info">
+                        <h2>必背古诗</h2>
+                        <p>三年级经典诗词，支持背诵模式</p>
+                    </div>
+                </div>
+                <!-- 模块二：英语 -->
+                <div class="module-card card-english" onclick="app.startLearning()">
+                    <div class="module-icon">🔤</div>
+                    <div class="module-info">
+                        <h2>单词打卡</h2>
+                        <p>每日5词，发音+测试</p>
+                    </div>
+                </div>
+                <!-- 模块三：数学 -->
+                <div class="module-card card-math" onclick="app.goToMathList()">
+                    <div class="module-icon">📐</div>
+                    <div class="module-info">
+                        <h2>数学概念</h2>
+                        <p>动画演示：分数、面积、周长</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. 学习页面 -->
+        <!-- 2. 古诗列表页 -->
+        <div id="page-poems-list" class="page">
+            <h3 style="margin-bottom: 20px;">选择一首诗</h3>
+            <div id="poems-list-container">
+                <!-- JS 生成 -->
+            </div>
+        </div>
+
+        <!-- 3. 古诗详情页 -->
+        <div id="page-poem-detail" class="page">
+            <div class="poem-card" id="poem-display">
+                <div class="poem-title" id="p-title">绝句</div>
+                <div class="poem-author" id="p-author">[唐] 杜甫</div>
+                <div class="poem-content" id="p-content">两个黄鹂鸣翠柳...</div>
+            </div>
+            <div style="text-align: center;">
+                <button class="mask-btn" onclick="app.togglePoemMask()">👀 背诵模式 (开/关)</button>
+            </div>
+        </div>
+
+        <!-- 4. 数学列表页 -->
+        <div id="page-math-list" class="page">
+            <h3 style="margin-bottom: 20px;">选择概念演示</h3>
+            <div id="math-list-container">
+                <!-- JS 生成 -->
+            </div>
+        </div>
+
+        <!-- 5. 数学动画页 -->
+        <div id="page-math-demo" class="page">
+            <h3 id="math-demo-title" style="text-align:center; margin-bottom:10px;">分数的认识</h3>
+            <div class="math-stage" id="math-stage-box">
+                <!-- 动态注入动画元素 -->
+            </div>
+            <div class="math-controls" id="math-controls-box">
+                <!-- 动态注入控制按钮 -->
+            </div>
+        </div>
+
+        <!-- 6. 英语学习页 -->
         <div id="page-learn" class="page">
             <div class="flashcard">
                 <button class="speaker-btn" onclick="app.speakCurrentWord()">🔊</button>
@@ -375,27 +319,25 @@
                 <button class="control-btn btn-forget" onclick="app.nextWord(false)">不认识</button>
                 <button class="control-btn btn-know" onclick="app.nextWord(true)">认识</button>
             </div>
-            <div style="margin-top: 15px; color: #999; font-size: 0.9rem;">
-                进度: <span id="learn-progress">1/10</span>
+            <div style="margin-top: 15px; color: #999; font-size: 0.9rem; text-align:center;">
+                进度: <span id="learn-progress">1/5</span>
             </div>
         </div>
 
-        <!-- 3. 测试页面 -->
+        <!-- 7. 英语测试页 -->
         <div id="page-quiz" class="page">
             <div class="quiz-container">
                 <div class="question-box">
                     <p style="color:#888; margin-bottom: 10px;">请选择正确的单词</p>
                     <div class="question-text" id="quiz-question">苹果</div>
                 </div>
-                <div class="options-grid" id="quiz-options">
-                    <!-- 选项将通过JS生成 -->
-                </div>
+                <div class="options-grid" id="quiz-options"></div>
             </div>
         </div>
 
-        <!-- 4. 结果页面 -->
+        <!-- 8. 结果页 -->
         <div id="page-result" class="page">
-            <div class="home-card">
+            <div class="home-card" style="text-align:center;">
                 <div class="result-emoji" id="result-emoji">🎉</div>
                 <div class="score-display" id="final-score">100</div>
                 <p style="font-weight: bold; margin-bottom: 20px;">今日打卡成功！</p>
@@ -411,7 +353,75 @@
     <div id="toast" class="toast">提示信息</div>
 
     <script>
-        // 1. 数据准备：三年级基础词汇库
+        // --- 数据定义 ---
+
+        const POEMS = [
+            { id: 1, title: '绝句', author: '[唐] 杜甫', content: '两个黄鹂鸣翠柳，\n一行白鹭上青天。\n窗含西岭千秋雪，\n门泊东吴万里船。' },
+            { id: 2, title: '惠崇春江晚景', author: '[宋] 苏轼', content: '竹外桃花三两枝，\n春江水暖鸭先知。\n蒌蒿满地芦芽短，\n正是河豚欲上时。' },
+            { id: 3, title: '三衢道中', author: '[宋] 曾几', content: '梅子黄时日日晴，\n小溪泛尽却山行。\n绿阴不减来时路，\n添得黄鹂四五声。' },
+            { id: 4, title: '忆江南', author: '[唐] 白居易', content: '江南好，\n风景旧曾谙。\n日出江花红胜火，\n春来江水绿如蓝。\n能不忆江南？' }
+        ];
+
+        const MATH_DEMOS = [
+            {
+                id: 'fraction',
+                title: '分数的认识 (1/2)',
+                desc: '把一个圆平均分成两份，每份是它的二分之一。',
+                init: (stage) => {
+                    stage.innerHTML = `<div class="pizza"><div class="pizza-slice"></div></div>`;
+                },
+                action: () => {
+                    const slice = document.querySelector('.pizza-slice');
+                    slice.style.transform = 'rotate(0deg)';
+                },
+                action2: () => {
+                    const slice = document.querySelector('.pizza-slice');
+                    slice.style.transform = 'rotate(180deg)'; // 转半圈
+                }
+            },
+            {
+                id: 'area',
+                title: '面积的概念',
+                desc: '物体的表面或封闭图形的大小，就是它们的面积。',
+                init: (stage) => {
+                    let html = '<div class="area-box">';
+                    for(let i=0; i<60; i++) html += `<div class="area-tile"></div>`;
+                    html += '</div>';
+                    stage.innerHTML = html;
+                },
+                action: () => {
+                    document.querySelectorAll('.area-tile').forEach((t, i) => {
+                        setTimeout(() => t.classList.add('filled'), i * 10);
+                    });
+                },
+                reset: () => {
+                    document.querySelectorAll('.area-tile').forEach(t => t.classList.remove('filled'));
+                }
+            },
+            {
+                id: 'perimeter',
+                title: '周长的认识',
+                desc: '封闭图形一周的长度，是它的周长。',
+                init: (stage) => {
+                    stage.innerHTML = `<div class="perimeter-track"><div class="runner"></div></div>`;
+                },
+                action: () => {
+                    const runner = document.querySelector('.runner');
+                    // 重置
+                    runner.style.transition = 'none';
+                    runner.style.transform = 'translate(0, 0)';
+                    // 强制重绘
+                    runner.offsetHeight; 
+                    // 动画跑一圈
+                    runner.style.transition = 'top 0.5s linear, left 0.5s linear';
+                    runner.style.left = '200px'; // 右
+                    setTimeout(() => runner.style.top = '120px', 500); // 下
+                    setTimeout(() => runner.style.left = '-12px', 1000); // 左
+                    setTimeout(() => runner.style.top = '-12px', 1500); // 上
+                }
+            }
+        ];
+
         const VOCABULARY = [
             { en: 'Apple', phonetic: '/ˈæp.l/', cn: '苹果', emoji: '🍎' },
             { en: 'Banana', phonetic: '/bəˈnæn.ə/', cn: '香蕉', emoji: '🍌' },
@@ -430,90 +440,232 @@
             { en: 'Friend', phonetic: '/frend/', cn: '朋友', emoji: '🤝' }
         ];
 
-        // 2. 应用逻辑控制器
+        // --- 应用逻辑 ---
+
         const app = {
             state: {
-                streak: 0,
-                points: 0,
-                lastLoginDate: null,
-                learnQueue: [],
-                currentLearnIndex: 0,
-                quizQueue: [],
-                currentQuizIndex: 0,
-                quizScore: 0,
-                voices: [], // 存储可用的语音列表
-                audioContext: null, // 用于音频上下文预激活
-                isAudioUnlocked: false // 音频是否已解锁
+                streak: 0, points: 0, lastLoginDate: null,
+                voices: [], isAudioUnlocked: false,
+                learnQueue: [], currentLearnIndex: 0,
+                quizQueue: [], currentQuizIndex: 0, quizScore: 0
             },
 
             init: function() {
-                this.loadVoices(); // 初始化加载语音列表
-                // 监听语音列表变化（解决安卓微信语音加载慢的问题）
+                this.loadVoices();
                 if (window.speechSynthesis.onvoiceschanged !== undefined) {
                     window.speechSynthesis.onvoiceschanged = this.loadVoices.bind(this);
                 }
-                
                 this.loadData();
                 this.updateHeader();
-                this.checkDailyStatus();
             },
 
-            // --- 核心：解锁微信音频引擎 ---
+            loadVoices: function() { this.state.voices = window.speechSynthesis.getVoices(); },
+            
             unlockAudio: function() {
-                if (this.isAudioUnlocked) return;
-                
-                // 1. 使用 SpeechSynthesis 播放一个静默的或极短的文本，强制唤醒微信音频线程
-                const utterance = new SpeechSynthesisUtterance('');
-                window.speechSynthesis.speak(utterance);
-                
-                // 2. 标记为已解锁
-                this.isAudioUnlocked = true;
-            },
-
-            // --- 语音优化核心逻辑 ---
-            loadVoices: function() {
-                this.state.voices = window.speechSynthesis.getVoices();
+                if (this.state.isAudioUnlocked) return;
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+                this.state.isAudioUnlocked = true;
             },
 
             speakText: function(text) {
-                if (!window.speechSynthesis) {
-                    this.showToast('您的设备不支持发音');
-                    return;
-                }
-
-                // 1. 停止当前正在播放的声音（防止重叠或卡顿）
+                if (!window.speechSynthesis) return;
                 window.speechSynthesis.cancel();
-
                 const utterance = new SpeechSynthesisUtterance(text);
-                
-                // 2. 强制设置为美式英语 (防止在部分中文环境下读成拼音)
-                utterance.lang = 'en-US'; 
-
-                // 3. 尝试选择最合适的英语语音包 (优先 Google US English 或 Samantha)
-                const enVoice = this.state.voices.find(v => 
-                    (v.lang.includes('en-US') || v.lang.includes('en_US')) && 
-                    (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Female') || v.name.includes('Alex'))
-                );
-                
-                if (enVoice) {
-                    utterance.voice = enVoice;
-                }
-
-                // 4. 调整语速和音调 (适合儿童，稍慢一点)
-                utterance.rate = 0.9; 
-                utterance.pitch = 1.1;
-
-                // 错误处理
-                utterance.onerror = function(e) {
-                    console.error('Speech error:', e);
-                    // 如果出错，尝试重置语音引擎（微信常见Bug修复）
-                    window.speechSynthesis.cancel();
-                };
-
+                utterance.lang = 'en-US';
+                const enVoice = this.state.voices.find(v => (v.lang.includes('en-US') || v.lang.includes('en_US')) && (v.name.includes('Google') || v.name.includes('Samantha')));
+                if (enVoice) utterance.voice = enVoice;
                 window.speechSynthesis.speak(utterance);
             },
-            
-            // --- 数据持久化 ---
+
+            // --- 导航 ---
+            showPage: function(pageId, title = '全科学习助手', showBack = true) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(pageId).classList.add('active');
+                
+                const headerTitle = document.getElementById('header-title');
+                const backBtn = document.getElementById('back-btn');
+                const stats = document.getElementById('home-stats');
+                
+                headerTitle.innerText = title;
+                backBtn.style.visibility = showBack ? 'visible' : 'hidden';
+                stats.style.visibility = showBack ? 'hidden' : 'visible';
+                
+                // 如果离开首页，清理任何动画
+                if(pageId === 'page-home') {
+                    document.getElementById('math-stage-box').innerHTML = '';
+                }
+            },
+
+            goHome: function() { this.showPage('page-home'); },
+
+            // --- 古诗模块 ---
+            goToPoetryList: function() {
+                const container = document.getElementById('poems-list-container');
+                container.innerHTML = POEMS.map(p => `
+                    <div class="list-item" onclick="app.showPoemDetail(${p.id})">
+                        <div class="list-title">${p.title}</div>
+                        <div class="list-desc">${p.author}</div>
+                    </div>
+                `).join('');
+                this.showPage('page-poems-list', '必背古诗');
+            },
+
+            showPoemDetail: function(id) {
+                const poem = POEMS.find(p => p.id === id);
+                document.getElementById('p-title').innerText = poem.title;
+                document.getElementById('p-author').innerText = poem.author;
+                document.getElementById('p-content').innerText = poem.content;
+                document.querySelector('.poem-card').classList.remove('masked');
+                this.showPage('page-poem-detail', poem.title);
+            },
+
+            togglePoemMask: function() {
+                document.querySelector('.poem-card').classList.toggle('masked');
+            },
+
+            // --- 数学模块 ---
+            goToMathList: function() {
+                const container = document.getElementById('math-list-container');
+                container.innerHTML = MATH_DEMOS.map(m => `
+                    <div class="list-item" onclick="app.showMathDemo('${m.id}')">
+                        <div class="list-title">${m.title}</div>
+                        <div class="list-desc">${m.desc}</div>
+                    </div>
+                `).join('');
+                this.showPage('page-math-list', '数学概念');
+            },
+
+            showMathDemo: function(id) {
+                const demo = MATH_DEMOS.find(m => m.id === id);
+                this.showPage('page-math-demo', demo.title);
+                
+                const stage = document.getElementById('math-stage-box');
+                const controls = document.getElementById('math-controls-box');
+                
+                stage.innerHTML = '';
+                controls.innerHTML = '';
+
+                demo.init(stage);
+
+                // 生成控制按钮
+                const btn1 = document.createElement('button');
+                btn1.className = 'math-btn';
+                btn1.innerText = id === 'fraction' ? '转半圈 (1/2)' : (id === 'area' ? '铺满面积' : '跑一圈');
+                btn1.onclick = demo.action;
+                controls.appendChild(btn1);
+
+                if(id === 'fraction') {
+                    const btn0 = document.createElement('button');
+                    btn0.className = 'math-btn';
+                    btn0.innerText = '重置';
+                    btn0.onclick = () => document.querySelector('.pizza-slice').style.transform = 'rotate(0deg)';
+                    controls.appendChild(btn0);
+                }
+                if(id === 'area') {
+                    const btnReset = document.createElement('button');
+                    btnReset.className = 'math-btn';
+                    btnReset.innerText = '重置';
+                    btnReset.onclick = demo.reset;
+                    controls.appendChild(btnReset);
+                }
+            },
+
+            // --- 英语模块 (复用之前的逻辑) ---
+            startLearning: function() {
+                this.unlockAudio();
+                const shuffled = [...VOCABULARY].sort(() => 0.5 - Math.random());
+                this.state.learnQueue = shuffled.slice(0, 5);
+                this.state.currentLearnIndex = 0;
+                this.renderLearnCard();
+                this.showPage('page-learn', '单词学习');
+            },
+
+            renderLearnCard: function() {
+                const word = this.state.learnQueue[this.state.currentLearnIndex];
+                document.getElementById('learn-emoji').innerText = word.emoji;
+                document.getElementById('learn-word').innerText = word.en;
+                document.getElementById('learn-phonetic').innerText = word.phonetic;
+                document.getElementById('learn-cn').innerText = word.cn;
+                document.getElementById('learn-cn').classList.remove('visible');
+                document.getElementById('learn-progress').innerText = `${this.state.currentLearnIndex + 1}/5`;
+            },
+
+            speakCurrentWord: function() {
+                this.speakText(this.state.learnQueue[this.state.currentLearnIndex].en);
+            },
+
+            nextWord: function(known) {
+                const cnDiv = document.getElementById('learn-cn');
+                if (!cnDiv.classList.contains('visible')) {
+                    cnDiv.classList.add('visible');
+                    this.speakCurrentWord();
+                    return;
+                }
+                this.state.currentLearnIndex++;
+                if (this.state.currentLearnIndex < this.state.learnQueue.length) {
+                    this.renderLearnCard();
+                } else {
+                    this.startQuiz();
+                }
+            },
+
+            startQuiz: function() {
+                this.state.quizQueue = [...this.state.learnQueue];
+                this.state.currentQuizIndex = 0;
+                this.state.quizScore = 0;
+                this.renderQuizQuestion();
+                this.showPage('page-quiz', '单词测试');
+            },
+
+            renderQuizQuestion: function() {
+                const questionWord = this.state.quizQueue[this.state.currentQuizIndex];
+                document.getElementById('quiz-question').innerText = `${questionWord.emoji} ${questionWord.cn}`;
+                let options = [questionWord];
+                const otherWords = VOCABULARY.filter(w => w.en !== questionWord.en);
+                const distractors = otherWords.sort(() => 0.5 - Math.random()).slice(0, 3);
+                options = options.concat(distractors).sort(() => 0.5 - Math.random());
+
+                const container = document.getElementById('quiz-options');
+                container.innerHTML = options.map(opt => `
+                    <div class="option-btn" onclick="app.handleQuizAnswer(this, '${opt.en}' === '${questionWord.en}', '${questionWord.en}')">${opt.en}</div>
+                `).join('');
+            },
+
+            handleQuizAnswer: function(btn, isCorrect, correctWordEn) {
+                const allBtns = document.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.style.pointerEvents = 'none');
+                if (isCorrect) {
+                    btn.classList.add('correct');
+                    this.state.quizScore++;
+                    this.speakText("Great!");
+                } else {
+                    btn.classList.add('wrong');
+                    this.speakText("Try again");
+                    allBtns.forEach(b => { if (b.innerText === correctWordEn) b.classList.add('correct'); });
+                }
+                setTimeout(() => {
+                    this.state.currentQuizIndex++;
+                    if (this.state.currentQuizIndex < this.state.quizQueue.length) this.renderQuizQuestion();
+                    else this.finishDailyTask();
+                }, 1200);
+            },
+
+            finishDailyTask: function() {
+                const today = new Date().toDateString();
+                const isNewDay = this.state.lastLoginDate !== today;
+                if (isNewDay) {
+                    this.state.streak++;
+                    this.state.points += (10 + this.state.quizScore * 2);
+                    this.state.lastLoginDate = today;
+                    this.saveData();
+                }
+                document.getElementById('result-emoji').innerText = this.state.quizScore === 5 ? '🏆' : '🎉';
+                document.getElementById('final-score').innerText = `${this.state.quizScore * 20}分`;
+                document.getElementById('result-streak').innerText = this.state.streak;
+                this.showPage('page-result', '打卡成功', false);
+                this.updateHeader();
+            },
+
             loadData: function() {
                 const data = localStorage.getItem('vocabApp_data');
                 if (data) {
@@ -523,7 +675,6 @@
                     this.state.lastLoginDate = parsed.lastLoginDate;
                 }
             },
-
             saveData: function() {
                 localStorage.setItem('vocabApp_data', JSON.stringify({
                     streak: this.state.streak,
@@ -531,178 +682,13 @@
                     lastLoginDate: this.state.lastLoginDate
                 }));
             },
-
-            checkDailyStatus: function() {
-                const today = new Date().toDateString();
-                if (this.state.lastLoginDate !== today) {
-                    document.getElementById('last-login-time').innerText = '新的一天，加油！';
-                } else {
-                    document.getElementById('last-login-time').innerText = '今日已打卡';
-                }
-            },
-
             updateHeader: function() {
                 document.getElementById('streak-count').innerText = this.state.streak;
                 document.getElementById('total-points').innerText = this.state.points;
-            },
-
-            // --- 导航控制 ---
-            showPage: function(pageId) {
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById(pageId).classList.add('active');
-            },
-
-            // --- 学习模式 ---
-            startLearning: function() {
-                // 关键修改：在用户点击"开始"时解锁音频
-                this.unlockAudio();
-
-                // 每次随机取5个单词
-                const shuffled = [...VOCABULARY].sort(() => 0.5 - Math.random());
-                this.state.learnQueue = shuffled.slice(0, 5);
-                this.state.currentLearnIndex = 0;
-                this.renderLearnCard();
-                this.showPage('page-learn');
-            },
-
-            renderLearnCard: function() {
-                const word = this.state.learnQueue[this.state.currentLearnIndex];
-                const total = this.state.learnQueue.length;
-                
-                document.getElementById('learn-emoji').innerText = word.emoji;
-                document.getElementById('learn-word').innerText = word.en;
-                document.getElementById('learn-phonetic').innerText = word.phonetic;
-                document.getElementById('learn-cn').innerText = word.cn;
-                document.getElementById('learn-cn').classList.remove('visible');
-                
-                document.getElementById('learn-progress').innerText = `${this.state.currentLearnIndex + 1}/${total}`;
-            },
-
-            speakCurrentWord: function() {
-                const word = this.state.learnQueue[this.state.currentLearnIndex];
-                this.speakText(word.en);
-            },
-
-            nextWord: function(known) {
-                const cnDiv = document.getElementById('learn-cn');
-                
-                // 如果还没看中文，先显示中文，并读一遍单词
-                if (!cnDiv.classList.contains('visible')) {
-                    cnDiv.classList.add('visible');
-                    this.speakCurrentWord(); // 此时播放声音，符合用户点击交互原则
-                    return;
-                }
-
-                // 如果已经看过中文了，进入下一个
-                this.state.currentLearnIndex++;
-                if (this.state.currentLearnIndex < this.state.learnQueue.length) {
-                    this.renderLearnCard();
-                } else {
-                    this.startQuiz();
-                }
-            },
-
-            // --- 测试模式 ---
-            startQuiz: function() {
-                this.state.quizQueue = [...this.state.learnQueue];
-                this.state.currentQuizIndex = 0;
-                this.state.quizScore = 0;
-                this.renderQuizQuestion();
-                this.showPage('page-quiz');
-            },
-
-            renderQuizQuestion: function() {
-                const questionWord = this.state.quizQueue[this.state.currentQuizIndex];
-                document.getElementById('quiz-question').innerText = `${questionWord.emoji} ${questionWord.cn}`;
-
-                let options = [questionWord];
-                const otherWords = VOCABULARY.filter(w => w.en !== questionWord.en);
-                const distractors = otherWords.sort(() => 0.5 - Math.random()).slice(0, 3);
-                options = options.concat(distractors);
-                options.sort(() => 0.5 - Math.random());
-
-                const container = document.getElementById('quiz-options');
-                container.innerHTML = ''; 
-
-                options.forEach(opt => {
-                    const btn = document.createElement('div');
-                    btn.className = 'option-btn';
-                    btn.innerText = opt.en;
-                    btn.onclick = () => this.handleQuizAnswer(btn, opt.en === questionWord.en, questionWord.en);
-                    container.appendChild(btn);
-                });
-            },
-
-            handleQuizAnswer: function(btnElement, isCorrect, correctWordEn) {
-                const allBtns = document.querySelectorAll('.option-btn');
-                allBtns.forEach(b => b.style.pointerEvents = 'none');
-
-                // 微信音频策略：必须由点击事件触发
-                if (isCorrect) {
-                    btnElement.classList.add('correct');
-                    this.state.quizScore++;
-                    this.speakText("Great!"); 
-                } else {
-                    btnElement.classList.add('wrong');
-                    this.speakText("Try again"); 
-                    allBtns.forEach(b => {
-                        if (b.innerText === correctWordEn) b.classList.add('correct');
-                    });
-                }
-
-                setTimeout(() => {
-                    this.state.currentQuizIndex++;
-                    if (this.state.currentQuizIndex < this.state.quizQueue.length) {
-                        this.renderQuizQuestion();
-                    } else {
-                        this.finishDailyTask();
-                    }
-                }, 1200);
-            },
-
-            finishDailyTask: function() {
-                const today = new Date().toDateString();
-                const isNewDay = this.state.lastLoginDate !== today;
-
-                let pointsEarned = 0;
-                let streakIncrement = 0;
-
-                if (isNewDay) {
-                    this.state.streak++;
-                    pointsEarned = 10 + Math.floor(this.state.quizScore * 2);
-                    this.state.points += pointsEarned;
-                    this.state.lastLoginDate = today;
-                    this.saveData();
-                    this.updateHeader();
-                } else {
-                    pointsEarned = Math.floor(this.state.quizScore);
-                }
-
-                document.getElementById('result-emoji').innerText = this.state.quizScore === 5 ? '🏆' : '🎉';
-                document.getElementById('final-score').innerText = `${this.state.quizScore * 20}分`;
-                document.getElementById('result-streak').innerText = this.state.streak;
-                document.getElementById('result-points').innerText = isNewDay ? `+${pointsEarned}` : `+${pointsEarned} (练习)`;
-
-                this.showPage('page-result');
-            },
-
-            goHome: function() {
-                this.showPage('page-home');
-                this.checkDailyStatus();
-            },
-
-            showToast: function(msg) {
-                const toast = document.getElementById('toast');
-                toast.innerText = msg;
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2000);
             }
         };
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            app.init();
-        });
+        document.addEventListener('DOMContentLoaded', () => { app.init(); });
     </script>
 </body>
 </html>
