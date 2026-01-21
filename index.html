@@ -20,7 +20,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            user-select: none; /* 防止长按选中文本，提升App体验 */
+            user-select: none; /* 防止长按选中文本 */
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -439,15 +439,64 @@
                 currentLearnIndex: 0,
                 quizQueue: [],
                 currentQuizIndex: 0,
-                quizScore: 0
+                quizScore: 0,
+                voices: [] // 存储可用的语音列表
             },
 
             init: function() {
+                this.loadVoices(); // 初始化加载语音列表
+                // 监听语音列表变化（解决安卓微信语音加载慢的问题）
+                if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                    window.speechSynthesis.onvoiceschanged = this.loadVoices.bind(this);
+                }
+                
                 this.loadData();
                 this.updateHeader();
                 this.checkDailyStatus();
             },
 
+            // --- 语音优化核心逻辑 ---
+            loadVoices: function() {
+                this.state.voices = window.speechSynthesis.getVoices();
+            },
+
+            speakText: function(text) {
+                if (!window.speechSynthesis) {
+                    this.showToast('您的设备不支持发音');
+                    return;
+                }
+
+                // 1. 停止当前正在播放的声音（防止重叠或卡顿）
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // 2. 强制设置为美式英语 (防止在部分中文环境下读成拼音)
+                utterance.lang = 'en-US'; 
+
+                // 3. 尝试选择最合适的英语语音包 (优先 Google US English 或 Samantha)
+                // 如果是 iPhone，系统默认语音质量通常很高
+                const enVoice = this.state.voices.find(v => 
+                    (v.lang.includes('en-US') || v.lang.includes('en_US')) && 
+                    (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Female'))
+                );
+                
+                if (enVoice) {
+                    utterance.voice = enVoice;
+                }
+
+                // 4. 调整语速和音调 (适合儿童，稍慢一点)
+                utterance.rate = 0.9; 
+                utterance.pitch = 1.1;
+
+                // 错误处理
+                utterance.onerror = function(e) {
+                    console.error('Speech error:', e);
+                };
+
+                window.speechSynthesis.speak(utterance);
+            },
+            
             // --- 数据持久化 ---
             loadData: function() {
                 const data = localStorage.getItem('vocabApp_data');
@@ -470,7 +519,6 @@
             checkDailyStatus: function() {
                 const today = new Date().toDateString();
                 if (this.state.lastLoginDate !== today) {
-                    // 如果是第一次，或者是新的一天
                     document.getElementById('last-login-time').innerText = '新的一天，加油！';
                 } else {
                     document.getElementById('last-login-time').innerText = '今日已打卡';
@@ -490,7 +538,7 @@
 
             // --- 学习模式 ---
             startLearning: function() {
-                // 每次随机取5个单词进行学习和测试
+                // 每次随机取5个单词
                 const shuffled = [...VOCABULARY].sort(() => 0.5 - Math.random());
                 this.state.learnQueue = shuffled.slice(0, 5);
                 this.state.currentLearnIndex = 0;
@@ -510,9 +558,10 @@
                 
                 document.getElementById('learn-progress').innerText = `${this.state.currentLearnIndex + 1}/${total}`;
 
-                // 自动播放发音（部分浏览器需要用户交互后才能播放，这里依赖用户点击开始）
-                // 这里稍微延迟一点，避免切换动画卡顿
-                setTimeout(() => this.speakText(word.en), 300);
+                // 微信策略调整：移除了自动播放 setTimeout
+                // 原因：微信禁止“未经过用户点击”的自动播放声音。
+                // 现在改为：用户进入页面后，必须手动点击喇叭图标，或者点击“不认识/认识”按钮触发下一页时才会播放。
+                // 为了提升体验，我们可以给用户一个提示，但最稳妥的是依赖手动点击。
             },
 
             speakCurrentWord: function() {
@@ -520,22 +569,13 @@
                 this.speakText(word.en);
             },
 
-            speakText: function(text) {
-                if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'en-US'; // 设定为美式英语
-                    window.speechSynthesis.speak(utterance);
-                } else {
-                    this.showToast('您的浏览器不支持发音');
-                }
-            },
-
             nextWord: function(known) {
                 const cnDiv = document.getElementById('learn-cn');
                 
-                // 如果还没看中文，先显示中文
+                // 如果还没看中文，先显示中文，并读一遍单词
                 if (!cnDiv.classList.contains('visible')) {
                     cnDiv.classList.add('visible');
+                    this.speakCurrentWord(); // 此时播放声音，符合用户点击交互原则
                     return;
                 }
 
@@ -550,7 +590,6 @@
 
             // --- 测试模式 ---
             startQuiz: function() {
-                // 使用刚才学习过的单词作为题库
                 this.state.quizQueue = [...this.state.learnQueue];
                 this.state.currentQuizIndex = 0;
                 this.state.quizScore = 0;
@@ -562,17 +601,14 @@
                 const questionWord = this.state.quizQueue[this.state.currentQuizIndex];
                 document.getElementById('quiz-question').innerText = `${questionWord.emoji} ${questionWord.cn}`;
 
-                // 生成选项：1个正确 + 3个错误
                 let options = [questionWord];
                 const otherWords = VOCABULARY.filter(w => w.en !== questionWord.en);
-                // 随机取3个干扰项
                 const distractors = otherWords.sort(() => 0.5 - Math.random()).slice(0, 3);
                 options = options.concat(distractors);
-                // 打乱选项顺序
                 options.sort(() => 0.5 - Math.random());
 
                 const container = document.getElementById('quiz-options');
-                container.innerHTML = ''; // 清空旧选项
+                container.innerHTML = ''; 
 
                 options.forEach(opt => {
                     const btn = document.createElement('div');
@@ -584,24 +620,22 @@
             },
 
             handleQuizAnswer: function(btnElement, isCorrect, correctWordEn) {
-                // 禁用所有按钮防止重复点击
                 const allBtns = document.querySelectorAll('.option-btn');
                 allBtns.forEach(b => b.style.pointerEvents = 'none');
 
+                // 微信音频策略：必须由点击事件触发
                 if (isCorrect) {
                     btnElement.classList.add('correct');
                     this.state.quizScore++;
-                    this.speakText("Great!"); // 正确反馈
+                    this.speakText("Great!"); 
                 } else {
                     btnElement.classList.add('wrong');
-                    this.speakText("Oh no"); // 错误反馈
-                    // 找出正确答案并标绿
+                    this.speakText("Try again"); 
                     allBtns.forEach(b => {
                         if (b.innerText === correctWordEn) b.classList.add('correct');
                     });
                 }
 
-                // 延时进入下一题
                 setTimeout(() => {
                     this.state.currentQuizIndex++;
                     if (this.state.currentQuizIndex < this.state.quizQueue.length) {
@@ -612,7 +646,6 @@
                 }, 1200);
             },
 
-            // --- 结算与打卡 ---
             finishDailyTask: function() {
                 const today = new Date().toDateString();
                 const isNewDay = this.state.lastLoginDate !== today;
@@ -622,19 +655,17 @@
 
                 if (isNewDay) {
                     this.state.streak++;
-                    pointsEarned = 10 + Math.floor(this.state.quizScore * 2); // 基础分10 + 答对奖励
+                    pointsEarned = 10 + Math.floor(this.state.quizScore * 2);
                     this.state.points += pointsEarned;
                     this.state.lastLoginDate = today;
                     this.saveData();
                     this.updateHeader();
                 } else {
-                    // 重复练习，不增加打卡天数，只给少量积分鼓励
                     pointsEarned = Math.floor(this.state.quizScore);
                 }
 
-                // 渲染结果页
                 document.getElementById('result-emoji').innerText = this.state.quizScore === 5 ? '🏆' : '🎉';
-                document.getElementById('final-score').innerText = `${this.state.quizScore * 20}分`; // 5题满分100
+                document.getElementById('final-score').innerText = `${this.state.quizScore * 20}分`;
                 document.getElementById('result-streak').innerText = this.state.streak;
                 document.getElementById('result-points').innerText = isNewDay ? `+${pointsEarned}` : `+${pointsEarned} (练习)`;
 
@@ -658,7 +689,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             app.init();
         });
-
     </script>
 </body>
 </html>
