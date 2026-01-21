@@ -202,6 +202,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            color: var(--primary-color);
         }
 
         .controls {
@@ -440,7 +441,9 @@
                 quizQueue: [],
                 currentQuizIndex: 0,
                 quizScore: 0,
-                voices: [] // 存储可用的语音列表
+                voices: [], // 存储可用的语音列表
+                audioContext: null, // 用于音频上下文预激活
+                isAudioUnlocked: false // 音频是否已解锁
             },
 
             init: function() {
@@ -453,6 +456,18 @@
                 this.loadData();
                 this.updateHeader();
                 this.checkDailyStatus();
+            },
+
+            // --- 核心：解锁微信音频引擎 ---
+            unlockAudio: function() {
+                if (this.isAudioUnlocked) return;
+                
+                // 1. 使用 SpeechSynthesis 播放一个静默的或极短的文本，强制唤醒微信音频线程
+                const utterance = new SpeechSynthesisUtterance('');
+                window.speechSynthesis.speak(utterance);
+                
+                // 2. 标记为已解锁
+                this.isAudioUnlocked = true;
             },
 
             // --- 语音优化核心逻辑 ---
@@ -475,10 +490,9 @@
                 utterance.lang = 'en-US'; 
 
                 // 3. 尝试选择最合适的英语语音包 (优先 Google US English 或 Samantha)
-                // 如果是 iPhone，系统默认语音质量通常很高
                 const enVoice = this.state.voices.find(v => 
                     (v.lang.includes('en-US') || v.lang.includes('en_US')) && 
-                    (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Female'))
+                    (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Female') || v.name.includes('Alex'))
                 );
                 
                 if (enVoice) {
@@ -492,6 +506,8 @@
                 // 错误处理
                 utterance.onerror = function(e) {
                     console.error('Speech error:', e);
+                    // 如果出错，尝试重置语音引擎（微信常见Bug修复）
+                    window.speechSynthesis.cancel();
                 };
 
                 window.speechSynthesis.speak(utterance);
@@ -538,6 +554,9 @@
 
             // --- 学习模式 ---
             startLearning: function() {
+                // 关键修改：在用户点击"开始"时解锁音频
+                this.unlockAudio();
+
                 // 每次随机取5个单词
                 const shuffled = [...VOCABULARY].sort(() => 0.5 - Math.random());
                 this.state.learnQueue = shuffled.slice(0, 5);
@@ -557,11 +576,6 @@
                 document.getElementById('learn-cn').classList.remove('visible');
                 
                 document.getElementById('learn-progress').innerText = `${this.state.currentLearnIndex + 1}/${total}`;
-
-                // 微信策略调整：移除了自动播放 setTimeout
-                // 原因：微信禁止“未经过用户点击”的自动播放声音。
-                // 现在改为：用户进入页面后，必须手动点击喇叭图标，或者点击“不认识/认识”按钮触发下一页时才会播放。
-                // 为了提升体验，我们可以给用户一个提示，但最稳妥的是依赖手动点击。
             },
 
             speakCurrentWord: function() {
