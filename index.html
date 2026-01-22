@@ -89,55 +89,66 @@
         }
         .math-btn:active { transform: scale(0.95); }
 
-        /* --- 数学动画元素定义 --- */
+        /* --- 北师大版三年级数学动画元素 --- */
+
+        /* 1. 观察物体 */
+        .cube-container { position: relative; width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; }
+        .cube-block {
+            width: 40px; height: 40px; background: var(--math-color); border: 2px solid #333;
+            position: absolute; box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+        }
+        .cube-top { top: 0; left: 30px; }
+        .cube-mid { top: 40px; left: 30px; }
+        .cube-bot { top: 80px; left: 30px; }
         
-        /* 1. 分数 (披萨) */
-        .pizza { width: 150px; height: 150px; border-radius: 50%; background: #ddd; transition: all 1s; position: relative; }
-        .pizza-slice { 
-            position: absolute; width: 100%; height: 100%; border-radius: 50%; 
-            background: var(--math-color); clip-path: polygon(50% 50%, 50% 0%, 100% 0%); 
-            transform-origin: 50% 50%; transition: transform 0.5s;
+        .view-projection {
+            display: none; width: 100px; height: 100px; border: 2px dashed #666; display: flex; justify-content: center; align-items: center;
+        }
+        .view-active { display: flex; }
+        .view-grid { display: grid; gap: 2px; grid-template-columns: repeat(3, 1fr); }
+        .view-cell { width: 30px; height: 30px; border: 1px solid #ccc; }
+        .view-cell.filled { background: var(--math-color); }
+
+        /* 2. 轴对称 */
+        .symmetry-container { position: relative; width: 200px; height: 200px; }
+        .sym-half { position: absolute; top: 0; width: 50%; height: 100%; background: #eee; overflow: hidden; transition: transform 1s ease; transform-origin: right; backface-visibility: hidden; }
+        .sym-left { left: 0; background: var(--math-color); display: flex; justify-content: center; align-items: center; font-size: 40px; }
+        .sym-right { right: 0; background: var(--math-color); display: flex; justify-content: center; align-items: center; font-size: 40px; }
+        .sym-folded .sym-right { transform: rotateY(180deg); background: rgba(161, 140, 209, 0.5); }
+
+        /* 3. 分数 */
+        .fraction-circle {
+            width: 160px; height: 160px; border-radius: 50%; background: #eee; position: relative; overflow: hidden;
+        }
+        .fraction-slice {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--math-color); clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);
+            opacity: 0; transition: opacity 0.5s;
+        }
+        .slice-1 { transform: rotate(0deg); }
+        .slice-2 { transform: rotate(90deg); clip-path: polygon(50% 50%, 50% 0%, 100% 0%); }
+        .slice-3 { transform: rotate(180deg); clip-path: polygon(50% 50%, 50% 0%, 0% 0%); }
+        .slice-4 { transform: rotate(270deg); clip-path: polygon(50% 50%, 50% 100%, 0% 100%); }
+
+        /* 4. 面积与周长 */
+        .shape-box {
+            width: 180px; height: 120px; position: relative; border: 10px solid #333; background: white;
+            transition: all 0.5s;
+        }
+        .shape-area-mode { background-color: var(--math-color); border-color: #333; opacity: 0.8; }
+        .shape-perimeter-mode { border-color: var(--success-color); border-width: 15px; background: white; }
+        .shape-label {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-weight: bold; font-size: 1.2rem; z-index: 2;
         }
 
-        /* 2. 面积 (网格) */
-        .area-box { width: 200px; height: 120px; border: 2px solid #333; display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(6, 1fr); }
-        .area-tile { background-color: #eee; transition: background-color 0.3s; border: 1px solid rgba(0,0,0,0.05); }
-        .area-tile.filled { background-color: var(--math-color); }
-
-        /* 3. 周长 (跑步) */
-        .perimeter-track { width: 200px; height: 120px; border: 4px dashed #ccc; position: relative; }
-        .runner { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; top: -12px; left: -12px; transition: all 2s linear; }
-
-        /* 4. 钟表 (时间) */
-        .clock-face {
-            width: 200px; height: 200px; border: 8px solid #333; border-radius: 50%;
-            position: relative; background: white;
-        }
-        .clock-center {
-            width: 10px; height: 10px; background: #333; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;
-        }
-        .hand {
-            position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center;
-            background: #333; border-radius: 4px; transition: transform 0.5s cubic-bezier(0.4, 2.08, 0.55, 0.44);
-        }
-        .hand.hour { width: 6px; height: 50px; background: #333; }
-        .hand.minute { width: 4px; height: 70px; background: var(--math-color); }
-        .clock-number { position: absolute; width: 30px; height: 30px; text-align: center; line-height: 30px; font-weight: bold; top: 10px; left: 85px; }
-
-        /* 5. 乘法 (阵列) */
-        .array-container { display: grid; gap: 5px; }
-        .array-item { width: 30px; height: 30px; background: var(--math-color); border-radius: 50%; opacity: 0; transform: scale(0); transition: all 0.3s; }
-        .array-item.show { opacity: 1; transform: scale(1); }
-
-        /* 6. 角 (旋转) */
-        .angle-stage { position: relative; width: 200px; height: 200px; }
-        .angle-base { width: 150px; height: 4px; background: #333; position: absolute; top: 50%; left: 25px; }
-        .angle-arm { width: 150px; height: 4px; background: var(--math-color); position: absolute; top: 50%; left: 25px; transform-origin: 0% 50%; transition: transform 1s ease; }
-        .angle-arc {
-            width: 60px; height: 60px; border: 2px solid var(--math-color); border-radius: 50%;
-            position: absolute; top: calc(50% - 60px); left: 25px; border-top: transparent; border-right: transparent;
-            transform: rotate(0deg); opacity: 0.5; transition: transform 1s ease;
-        }
+        /* 5. 认识小数 */
+        .decimal-display { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .coin { width: 60px; height: 60px; border-radius: 50%; border: 3px solid #bfa560; background: radial-gradient(#ffd700, #daa520); display: flex; justify-content: center; align-items: center; font-weight: bold; color: #8b4500; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); transition: all 0.3s; }
+        .coin-jiao { width: 40px; height: 40px; background: radial-gradient(#c0c0c0, #a9a9a9); border-color: #696969; }
+        .jiao-container { display: flex; gap: 5px; flex-wrap: wrap; width: 120px; justify-content: center; }
+        .fade-in { opacity: 1; transform: scale(1); }
+        .fade-out { opacity: 0; transform: scale(0.5); }
 
         /* 英语样式 */
         .user-stats { display: flex; gap: 15px; font-size: 0.9rem; font-weight: bold; }
@@ -205,7 +216,7 @@
                     <div class="module-icon">📐</div>
                     <div class="module-info">
                         <h2>数学概念</h2>
-                        <p>动画演示：分数、钟表、乘法</p>
+                        <p>北师大版三年级动画演示</p>
                     </div>
                 </div>
             </div>
@@ -289,7 +300,7 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // --- 1. 扩充数据：古诗 (12首) ---
+        // --- 1. 数据定义 ---
         const POEMS = [
             { id: 1, title: '静夜思', author: '[唐] 李白', content: '床前明月光，\n疑是地上霜。\n举头望明月，\n低头思故乡。' },
             { id: 2, title: '望庐山瀑布', author: '[唐] 李白', content: '日照香炉生紫烟，\n遥看瀑布挂前川。\n飞流直下三千尺，\n疑是银河落九天。' },
@@ -305,130 +316,161 @@
             { id: 12, title: '风', author: '[唐] 李侨', content: '解落三秋叶，\n能开二月花。\n过江千尺浪，\n入竹万竿斜。' }
         ];
 
-        // --- 2. 扩充数据：数学概念 (6个) ---
+        // 北师大版三年级数学数据
         const MATH_DEMOS = [
             {
-                id: 'fraction', title: '分数的认识 (1/2)', desc: '把一个圆平均分成两份，每份是它的二分之一。',
-                init: (stage) => { stage.innerHTML = `<div class="pizza"><div class="pizza-slice"></div></div>`; },
-                action: () => { const slice = document.querySelector('.pizza-slice'); slice.style.transform = 'rotate(180deg)'; },
-                reset: () => { document.querySelector('.pizza-slice').style.transform = 'rotate(0deg)'; }
-            },
-            {
-                id: 'area', title: '面积的概念', desc: '物体的表面或封闭图形的大小，就是它们的面积。',
-                init: (stage) => {
-                    let html = '<div class="area-box">';
-                    for(let i=0; i<60; i++) html += `<div class="area-tile"></div>`;
-                    html += '</div>';
-                    stage.innerHTML = html;
-                },
-                action: () => { document.querySelectorAll('.area-tile').forEach((t, i) => setTimeout(() => t.classList.add('filled'), i * 10)); },
-                reset: () => { document.querySelectorAll('.area-tile').forEach(t => t.classList.remove('filled')); }
-            },
-            {
-                id: 'perimeter', title: '周长的认识', desc: '封闭图形一周的长度，是它的周长。',
-                init: (stage) => { stage.innerHTML = `<div class="perimeter-track"><div class="runner"></div></div>`; },
-                action: () => {
-                    const runner = document.querySelector('.runner');
-                    runner.style.transition = 'none'; runner.style.transform = 'translate(0, 0)';
-                    runner.offsetHeight;
-                    runner.style.transition = 'top 0.5s linear, left 0.5s linear';
-                    runner.style.left = '200px'; setTimeout(() => runner.style.top = '120px', 500);
-                    setTimeout(() => runner.style.left = '-12px', 1000); setTimeout(() => runner.style.top = '-12px', 1500);
-                }
-            },
-            {
-                id: 'clock', title: '认识钟表', desc: '时针短，分针长。分针走一圈是60分。',
+                id: 'observe', title: '观察物体', desc: '从不同位置观察物体，看到的形状可能不同。',
                 init: (stage) => {
                     stage.innerHTML = `
-                        <div class="clock-face">
-                            <div class="clock-center"></div>
-                            <div class="clock-number">12</div>
-                            <div class="hand hour" id="hand-h"></div>
-                            <div class="hand minute" id="hand-m"></div>
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <div class="cube-container" id="cube-3d">
+                                <div class="cube-block cube-top"></div>
+                                <div class="cube-block cube-mid"></div>
+                                <div class="cube-block cube-bot"></div>
+                            </div>
+                            <div style="font-size:12px; margin-top:10px; color:#666;">(立体图)</div>
+                            <div class="view-projection view-active" id="view-result" style="margin-top:20px;">
+                                <div class="view-grid">
+                                    <div class="view-cell"></div><div class="view-cell filled"></div><div class="view-cell"></div>
+                                    <div class="view-cell"></div><div class="view-cell filled"></div><div class="view-cell"></div>
+                                    <div class="view-cell"></div><div class="view-cell filled"></div><div class="view-cell"></div>
+                                </div>
+                            </div>
                         </div>`;
                 },
-                action: () => {
-                    // 设置为 3:30
-                    document.getElementById('hand-h').style.transform = `translateX(-50%) rotate(${3.5 * 30}deg)`; // 3点过半格
-                    document.getElementById('hand-m').style.transform = `translateX(-50%) rotate(180deg)`;
+                action: (view) => {
+                    const result = document.getElementById('view-result');
+                    result.innerHTML = '';
+                    let grid = document.createElement('div');
+                    grid.className = 'view-grid';
+                    let pattern = [];
+                    if(view === 'front') { pattern = [0,1,0, 0,1,0, 0,1,0]; } 
+                    else if (view === 'top') { pattern = [0,0,0, 0,1,0, 0,0,0]; }
+                    else if (view === 'left') { pattern = [0,0,0, 0,1,0, 0,0,0]; }
+
+                    pattern.forEach(filled => {
+                        let cell = document.createElement('div');
+                        cell.className = 'view-cell ' + (filled ? 'filled' : '');
+                        grid.appendChild(cell);
+                    });
+                    result.appendChild(grid);
                 }
             },
             {
-                id: 'multiplication', title: '乘法的意义', desc: '乘法是求几个相同加数和的简便运算。如 3 x 4 = 12。',
+                id: 'symmetry', title: '轴对称图形', desc: '如果一个图形沿着一条直线对折，两部分完全重合，就是轴对称图形。',
                 init: (stage) => {
-                    stage.innerHTML = '<div class="array-container" id="array-box" style="grid-template-columns: repeat(4, 1fr);"></div>';
+                    stage.innerHTML = `
+                        <div class="symmetry-container" id="sym-shape">
+                            <div class="sym-half sym-left">🦋</div>
+                            <div class="sym-half sym-right">🦋</div>
+                        </div>
+                        <div style="margin-top:10px; font-size:12px; color:#666;">(对折演示)</div>
+                    `;
                 },
-                action: () => {
-                    const box = document.getElementById('array-box');
-                    box.innerHTML = '';
-                    for(let i=0; i<12; i++) {
-                        const dot = document.createElement('div');
-                        dot.className = 'array-item';
-                        box.appendChild(dot);
-                        setTimeout(() => dot.classList.add('show'), i * 50);
+                action: () => { document.getElementById('sym-shape').classList.toggle('sym-folded'); }
+            },
+            {
+                id: 'fraction', title: '分数的初步认识', desc: '把一个整体平均分成若干份，其中的一份就是这个整体的几分之一。',
+                init: (stage) => {
+                    stage.innerHTML = `
+                        <div class="fraction-circle" id="frac-circle">
+                            <div class="fraction-slice slice-1"></div>
+                            <div class="fraction-slice slice-2"></div>
+                            <div class="fraction-slice slice-3"></div>
+                            <div class="fraction-slice slice-4"></div>
+                        </div>
+                        <div style="position:absolute; bottom:10px; font-size:24px; font-weight:bold;" id="frac-text">0/4</div>
+                    `;
+                },
+                action: (num) => {
+                    document.querySelectorAll('.fraction-slice').forEach(el => el.style.opacity = '0');
+                    const text = document.getElementById('frac-text');
+                    for(let i=1; i<=num; i++) {
+                        document.querySelector(`.slice-${i}`).style.opacity = '1';
                     }
-                },
-                reset: () => { document.getElementById('array-box').innerHTML = ''; }
+                    text.innerText = `${num}/4`;
+                }
             },
             {
-                id: 'angles', title: '角的分类', desc: '锐角(<90度)，直角(=90度)，钝角(>90度)。',
+                id: 'area_perimeter', title: '面积与周长', desc: '周长是围成图形一周边线的长度；面积是物体表面或封闭图形的大小。',
                 init: (stage) => {
                     stage.innerHTML = `
-                        <div class="angle-stage">
-                            <div class="angle-base"></div>
-                            <div class="angle-arm" id="angle-arm"></div>
-                            <div class="angle-arc" id="angle-arc"></div>
-                            <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); font-size:24px; font-weight:bold;" id="angle-text">0°</div>
-                        </div>`;
+                        <div style="text-align:center;">
+                            <div class="shape-box" id="rect-shape">
+                                <div class="shape-label">图形</div>
+                            </div>
+                            <div style="margin-top:20px; font-size:14px; line-height:1.5;" id="calc-result">
+                                周长：?(cm)<br>面积：?(cm²)
+                            </div>
+                        </div>
+                    `;
                 },
                 action: (type) => {
-                    const arm = document.getElementById('angle-arm');
-                    const arc = document.getElementById('angle-arc');
-                    const text = document.getElementById('angle-text');
-                    
-                    if(type === 'acute') { // 锐角
-                        arm.style.transform = 'rotate(45deg)';
-                        arc.style.transform = 'rotate(45deg)';
-                        text.innerText = '45° (锐角)';
-                    } else if (type === 'right') { // 直角
-                        arm.style.transform = 'rotate(90deg)';
-                        arc.style.transform = 'rotate(90deg)';
-                        text.innerText = '90° (直角)';
-                    } else { // 钝角
-                        arm.style.transform = 'rotate(135deg)';
-                        arc.style.transform = 'rotate(135deg)';
-                        text.innerText = '135° (钝角)';
+                    const shape = document.getElementById('rect-shape');
+                    const text = document.getElementById('calc-result');
+                    if(type === 'perimeter') {
+                        shape.className = 'shape-box shape-perimeter-mode';
+                        text.innerHTML = `<span style="color:var(--success-color)">周长：60cm (围成一圈)</span><br>面积：216cm²`;
+                    } else {
+                        shape.className = 'shape-box shape-area-mode';
+                        text.innerHTML = `周长：60cm<br><span style="color:var(--math-color)">面积：216cm² (涂满颜色)</span>`;
                     }
+                }
+            },
+            {
+                id: 'decimal', title: '认识小数', desc: '像3.45, 0.85这样的数叫做小数。小数点左边是整数部分，右边是小数部分。',
+                init: (stage) => {
+                    stage.innerHTML = `
+                        <div class="decimal-display">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="coin">1</div>
+                                <span style="font-size:20px;">+</span>
+                                <div style="display:flex; gap:2px;" id="jiao-box"></div>
+                            </div>
+                            <div style="font-size:24px; font-weight:bold; margin-top:10px;">= <span id="decimal-val">1.0</span> 元</div>
+                        </div>
+                    `;
+                },
+                action: (val) => {
+                    const jiaoBox = document.getElementById('jiao-box');
+                    const decimalVal = document.getElementById('decimal-val');
+                    jiaoBox.innerHTML = '';
+                    let count = 0;
+                    if(val === 'half') count = 5;
+                    if(val === 'nine') count = 9;
+
+                    for(let i=0; i<count; i++) {
+                        setTimeout(() => {
+                            let c = document.createElement('div');
+                            c.className = 'coin coin-jiao fade-in';
+                            c.innerHTML = '角';
+                            jiaoBox.appendChild(c);
+                        }, i * 100);
+                    }
+                    decimalVal.innerText = `1.${count}`;
                 }
             }
         ];
 
-        // --- 3. 扩充数据：单词 (增加到50+，涵盖更多年级和主题) ---
+        // 单词库 (50+)
         const VOCABULARY = [
-            // 食物
             { en: 'Apple', phonetic: '/ˈæp.l/', cn: '苹果', emoji: '🍎' }, { en: 'Banana', phonetic: '/bəˈnæn.ə/', cn: '香蕉', emoji: '🍌' },
             { en: 'Bread', phonetic: '/bred/', cn: '面包', emoji: '🍞' }, { en: 'Rice', phonetic: '/raɪs/', cn: '米饭', emoji: '🍚' },
             { en: 'Egg', phonetic: '/eɡ/', cn: '鸡蛋', emoji: '🥚' }, { en: 'Milk', phonetic: '/mɪlk/', cn: '牛奶', emoji: '🥛' },
             { en: 'Water', phonetic: '/ˈwɔː.tər/', cn: '水', emoji: '💧' }, { en: 'Cake', phonetic: '/keɪk/', cn: '蛋糕', emoji: '🍰' },
-            // 动物
             { en: 'Cat', phonetic: '/kæt/', cn: '猫', emoji: '🐱' }, { en: 'Dog', phonetic: '/dɒɡ/', cn: '狗', emoji: '🐶' },
             { en: 'Bird', phonetic: '/bɜːrd/', cn: '鸟', emoji: '🐦' }, { en: 'Panda', phonetic: '/ˈpæn.də/', cn: '熊猫', emoji: '🐼' },
             { en: 'Tiger', phonetic: '/ˈtaɪ.ɡər/', cn: '老虎', emoji: '🐯' }, { en: 'Monkey', phonetic: '/ˈmʌŋ.ki/', cn: '猴子', emoji: '🐵' },
-            // 颜色
             { en: 'Red', phonetic: '/red/', cn: '红色', emoji: '🔴' }, { en: 'Blue', phonetic: '/bluː/', cn: '蓝色', emoji: '🔵' },
             { en: 'Green', phonetic: '/ɡriːn/', cn: '绿色', emoji: '🟢' }, { en: 'Yellow', phonetic: '/ˈjel.əʊ/', cn: '黄色', emoji: '🟡' },
             { en: 'Black', phonetic: '/blæk/', cn: '黑色', emoji: '⚫' }, { en: 'White', phonetic: '/waɪt/', cn: '白色', emoji: '⚪' },
-            // 身体
             { en: 'Head', phonetic: '/hed/', cn: '头', emoji: '🗣️' }, { en: 'Hand', phonetic: '/hænd/', cn: '手', emoji: '✋' },
             { en: 'Foot', phonetic: '/fʊt/', cn: '脚', emoji: '🦶' }, { en: 'Eye', phonetic: '/aɪ/', cn: '眼睛', emoji: '👁️' },
-            // 学校
             { en: 'School', phonetic: '/skuːl/', cn: '学校', emoji: '🏫' }, { en: 'Book', phonetic: '/bʊk/', cn: '书', emoji: '📖' },
             { en: 'Pen', phonetic: '/pen/', cn: '钢笔', emoji: '🖊️' }, { en: 'Bag', phonetic: '/bæɡ/', cn: '书包', emoji: '🎒' },
             { en: 'Desk', phonetic: '/desk/', cn: '书桌', emoji: '🪑' }, { en: 'Ruler', phonetic: '/ˈruː.lər/', cn: '尺子', emoji: '📏' },
-            // 数字
             { en: 'One', phonetic: '/wʌn/', cn: '一', emoji: '1️⃣' }, { en: 'Two', phonetic: '/tuː/', cn: '二', emoji: '2️⃣' },
             { en: 'Three', phonetic: '/θriː/', cn: '三', emoji: '3️⃣' }, { en: 'Ten', phonetic: '/ten/', cn: '十', emoji: '🔟' },
-            // 其他
             { en: 'Family', phonetic: '/ˈfæm.əl.i/', cn: '家庭', emoji: '👨‍👩‍👧' }, { en: 'Friend', phonetic: '/frend/', cn: '朋友', emoji: '🤝' },
             { en: 'Happy', phonetic: '/ˈhæp.i/', cn: '快乐', emoji: '😊' }, { en: 'Sad', phonetic: '/sæd/', cn: '伤心', emoji: '😢' },
             { en: 'Run', phonetic: '/rʌn/', cn: '跑', emoji: '🏃' }, { en: 'Jump', phonetic: '/dʒʌmp/', cn: '跳', emoji: '🦘' },
@@ -446,29 +488,46 @@
 
             init: function() {
                 this.loadVoices();
-                if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
                     window.speechSynthesis.onvoiceschanged = this.loadVoices.bind(this);
                 }
                 this.loadData();
                 this.updateHeader();
             },
 
-            loadVoices: function() { this.state.voices = window.speechSynthesis.getVoices(); },
+            loadVoices: function() { 
+                try {
+                    this.state.voices = window.speechSynthesis.getVoices();
+                } catch(e) { console.warn("Load voices error", e); }
+            },
             
+            // 修复：增加了安全检查，防止在不支持语音的手机上点击无反应
             unlockAudio: function() {
                 if (this.state.isAudioUnlocked) return;
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+                if (window.speechSynthesis && window.speechSynthesis.speak) {
+                    try {
+                        const u = new SpeechSynthesisUtterance('');
+                        u.text = '';
+                        window.speechSynthesis.speak(u);
+                    } catch (e) {
+                        console.warn("Audio unlock failed", e);
+                    }
+                }
                 this.state.isAudioUnlocked = true;
             },
 
             speakText: function(text) {
                 if (!window.speechSynthesis) return;
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                const enVoice = this.state.voices.find(v => (v.lang.includes('en-US') || v.lang.includes('en_US')) && (v.name.includes('Google') || v.name.includes('Samantha')));
-                if (enVoice) utterance.voice = enVoice;
-                window.speechSynthesis.speak(utterance);
+                try {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'en-US';
+                    if (this.state.voices.length > 0) {
+                        const enVoice = this.state.voices.find(v => (v.lang.includes('en-US') || v.lang.includes('en_US')) && (v.name.includes('Google') || v.name.includes('Samantha')));
+                        if (enVoice) utterance.voice = enVoice;
+                    }
+                    window.speechSynthesis.speak(utterance);
+                } catch(e) { console.warn("Speak error", e); }
             },
 
             showPage: function(pageId, title = '全科学习助手', showBack = true) {
@@ -525,35 +584,44 @@
                 stage.innerHTML = ''; controls.innerHTML = '';
                 demo.init(stage);
 
-                if (id === 'angles') {
-                    // 特殊处理：角需要三个按钮
-                    ['acute', 'right', 'obtuse'].forEach(type => {
+                if (id === 'observe') {
+                    ['正面', '上面', '左面'].forEach((view, idx) => {
                         const btn = document.createElement('button');
                         btn.className = 'math-btn';
-                        btn.innerText = type === 'acute' ? '锐角' : (type === 'right' ? '直角' : '钝角');
-                        btn.onclick = () => demo.action(type);
+                        btn.innerText = view + '看';
+                        btn.onclick = () => demo.action(['front','top','left'][idx]);
+                        controls.appendChild(btn);
+                    });
+                } else if (id === 'fraction') {
+                    ['1/4', '2/4', '3/4', '4/4'].forEach((frac, idx) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'math-btn';
+                        btn.innerText = frac;
+                        btn.onclick = () => demo.action(idx+1);
+                        controls.appendChild(btn);
+                    });
+                } else if (id === 'area_perimeter') {
+                    ['看周长', '看面积'].forEach((type) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'math-btn';
+                        btn.innerText = type;
+                        btn.onclick = () => demo.action(type.includes('周长') ? 'perimeter' : 'area');
+                        controls.appendChild(btn);
+                    });
+                } else if (id === 'decimal') {
+                    ['0.5元', '0.9元'].forEach((val) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'math-btn';
+                        btn.innerText = val;
+                        btn.onclick = () => demo.action(val.includes('0.5') ? 'half' : 'nine');
                         controls.appendChild(btn);
                     });
                 } else {
-                    // 其他演示通用逻辑
-                    const btn1 = document.createElement('button');
-                    btn1.className = 'math-btn';
-                    if(id === 'fraction') btn1.innerText = '演示 (1/2)';
-                    else if(id === 'area') btn1.innerText = '填满面积';
-                    else if(id === 'perimeter') btn1.innerText = '跑一圈';
-                    else if(id === 'clock') btn1.innerText = '调到 3:30';
-                    else if(id === 'multiplication') btn1.innerText = '演示 (3x4)';
-                    
-                    btn1.onclick = demo.action;
-                    controls.appendChild(btn1);
-
-                    if (demo.reset) {
-                        const btnReset = document.createElement('button');
-                        btnReset.className = 'math-btn';
-                        btnReset.innerText = '重置';
-                        btnReset.onclick = demo.reset;
-                        controls.appendChild(btnReset);
-                    }
+                    const btn = document.createElement('button');
+                    btn.className = 'math-btn';
+                    btn.innerText = '对折动画';
+                    btn.onclick = demo.action;
+                    controls.appendChild(btn);
                 }
             },
 
@@ -561,7 +629,7 @@
             startLearning: function() {
                 this.unlockAudio();
                 const shuffled = [...VOCABULARY].sort(() => 0.5 - Math.random());
-                this.state.learnQueue = shuffled.slice(0, 10); // 修改：取10个
+                this.state.learnQueue = shuffled.slice(0, 10);
                 this.state.currentLearnIndex = 0;
                 this.renderLearnCard();
                 this.showPage('page-learn', '单词学习');
@@ -574,7 +642,7 @@
                 document.getElementById('learn-phonetic').innerText = word.phonetic;
                 document.getElementById('learn-cn').innerText = word.cn;
                 document.getElementById('learn-cn').classList.remove('visible');
-                document.getElementById('learn-progress').innerText = `${this.state.currentLearnIndex + 1}/10`; // 修改：显示10
+                document.getElementById('learn-progress').innerText = `${this.state.currentLearnIndex + 1}/10`;
             },
 
             speakCurrentWord: function() { this.speakText(this.state.learnQueue[this.state.currentLearnIndex].en); },
@@ -639,30 +707,34 @@
                 const isNewDay = this.state.lastLoginDate !== today;
                 if (isNewDay) {
                     this.state.streak++;
-                    this.state.points += (10 + this.state.quizScore * 2); // 分数计算：基础10 + 每题2分 (10题共20分，总分30)
+                    this.state.points += (10 + this.state.quizScore * 2); 
                     this.state.lastLoginDate = today;
                     this.saveData();
                 }
                 document.getElementById('result-emoji').innerText = this.state.quizScore === 10 ? '🏆' : '🎉';
-                document.getElementById('final-score').innerText = `${this.state.quizScore * 10}分`; // 10题每题10分，满分100
+                document.getElementById('final-score').innerText = `${this.state.quizScore * 10}分`;
                 document.getElementById('result-streak').innerText = this.state.streak;
                 this.showPage('page-result', '打卡成功', false);
                 this.updateHeader();
             },
 
             loadData: function() {
-                const data = localStorage.getItem('vocabApp_data');
-                if (data) {
-                    const parsed = JSON.parse(data);
-                    this.state.streak = parsed.streak || 0;
-                    this.state.points = parsed.points || 0;
-                    this.state.lastLoginDate = parsed.lastLoginDate;
-                }
+                try {
+                    const data = localStorage.getItem('vocabApp_data');
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        this.state.streak = parsed.streak || 0;
+                        this.state.points = parsed.points || 0;
+                        this.state.lastLoginDate = parsed.lastLoginDate;
+                    }
+                } catch(e) { console.warn("Load data error", e); }
             },
             saveData: function() {
-                localStorage.setItem('vocabApp_data', JSON.stringify({
-                    streak: this.state.streak, points: this.state.points, lastLoginDate: this.state.lastLoginDate
-                }));
+                try {
+                    localStorage.setItem('vocabApp_data', JSON.stringify({
+                        streak: this.state.streak, points: this.state.points, lastLoginDate: this.state.lastLoginDate
+                    }));
+                } catch(e) { console.warn("Save data error", e); }
             },
             updateHeader: function() {
                 document.getElementById('streak-count').innerText = this.state.streak;
